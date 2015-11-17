@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleFun
+namespace CommandLineArgs
 {
     public class ConsoleApp
     {
@@ -71,21 +71,21 @@ namespace ConsoleFun
 
         public static T FromCommandLineArgs<T>(string[] args)
         {
-            return FromCommandLineArgs<T>(new CommandLineArgs(args));
+            T ret = Activator.CreateInstance<T>();
+            FromCommandLineArgs<T>(ref ret, new CommandLineArgs(args));
+            return ret;
         }
 
-        internal static T FromCommandLineArgs<T>(CommandLineArgs commandLineArgs)
+        internal static void FromCommandLineArgs<T>(ref T obj, CommandLineArgs commandLineArgs)
         {
             ConsoleApp app = new ConsoleApp(typeof(T));
             app.BindCommandLineArgs(commandLineArgs);
-
-            T ret = Activator.CreateInstance<T>();
 
             bool[] paramsWithSetValues = new bool[app.Params.Length];
 
             for (int i = 0; i < app.Params.Length; i++)
             {
-                if (app.Params[i].TrySetSingleValueFromNamedArg(ref ret, commandLineArgs))
+                if (app.Params[i].TrySetSingleValueFromNamedArg(ref obj, commandLineArgs))
                 {
                     paramsWithSetValues[i] = true;
                 }
@@ -93,13 +93,34 @@ namespace ConsoleFun
 
             for (int i = 0; i < app.Params.Length; i++)
             {
-                if (!paramsWithSetValues[i] && !app.Params[i].TrySetSingleValueFromConsecutiveArg(ref ret, commandLineArgs))
+                if (!paramsWithSetValues[i] && !app.Params[i].TrySetSingleValueFromConsecutiveArg(ref obj, commandLineArgs))
                 {
                     app.Params[i].ThrowIfRequiredArg();
                 }
             }
+        }
 
-            return ret;
+        public static void StartApp<T>(string[] args)
+        {
+            T ret = Activator.CreateInstance<T>();
+
+            if (args.Length >= 1)
+            {
+                FromCommandLineArgs<T>(ref ret, new CommandLineArgs(args.Slice(1)));
+                if ((new Function() { Object = ret, Name = args[0] }).Invoke())
+                {
+                    return;
+                }
+            }
+
+            Console.WriteLine("List of available commands:");
+            foreach (var method in typeof(T).GetTypeInfo().DeclaredMethods)
+            {
+                if (method.GetParameters().Length == 0)
+                {
+                    Console.WriteLine("    {0}", method.Name);
+                }
+            }
         }
     }
 }

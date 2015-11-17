@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Reflection;
 using System.Threading.Tasks;
 
-namespace ConsoleFun
+namespace CommandLineArgs
 {
     internal static class StringConverters
     {
@@ -27,7 +27,7 @@ namespace ConsoleFun
 
         private static object ToEnum(string s, Type outputType)
         {
-            if (!outputType.IsEnum)
+            if (!outputType.GetTypeInfo().IsEnum)
             {
                 return null;
             }
@@ -46,7 +46,7 @@ namespace ConsoleFun
 
         private static object ToNullable(string s, Type outputType)
         {
-            if (!outputType.IsGenericType || outputType.GetGenericTypeDefinition() != typeof(Nullable<>))
+            if (!outputType.GetTypeInfo().IsGenericType || outputType.GetGenericTypeDefinition() != typeof(Nullable<>))
             {
                 return null;
             }

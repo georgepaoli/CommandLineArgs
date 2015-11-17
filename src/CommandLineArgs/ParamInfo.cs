@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleFun
+namespace CommandLineArgs
 {
     internal class ParamInfo
     {
@@ -86,7 +85,7 @@ namespace ConsoleFun
                         _field.SetValue(obj, resolvedValue);
                         return true;
                     }
-                    
+
                     // TODO: Should be intelligent about matching args here? (i.e. try to do it by checking type)
                 }
             }

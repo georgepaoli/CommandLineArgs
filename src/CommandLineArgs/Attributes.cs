@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleFun
+namespace CommandLineArgs
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class DescriptionAttribute : Attribute
@@ -47,13 +46,13 @@ namespace ConsoleFun
     {
     }
 
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Field)]
     public class PopArgAttribute : Attribute
     {
     }
 
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
-    public class ArgsAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method)]
+    public class DefaultFunctionAttribute : Attribute
     {
     }
 }
