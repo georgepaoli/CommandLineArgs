@@ -51,8 +51,14 @@ namespace CommandLineArgs
     {
     }
 
-    [AttributeUsage(AttributeTargets.Method)]
-    public class DefaultFunctionAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class)]
+    public class DefaultCommandAttribute : Attribute
     {
+        public string Command;
+
+        public DefaultCommandAttribute(string command)
+        {
+            Command = command;
+        }
     }
 }

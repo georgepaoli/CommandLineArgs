@@ -18,6 +18,7 @@
           "System.Console": "4.0.0-beta-23409",
           "System.Linq": "4.0.1-beta-23409",
           "System.Runtime": "4.0.21-beta-23409",
+          "System.Text.RegularExpressions": "4.0.11-beta-23409",
           "System.Threading": "4.0.11-beta-23409"
         }
       },
@@ -317,6 +318,23 @@
           "ref/dotnet/System.Text.Encoding.dll": {}
         }
       },
+      "System.Text.RegularExpressions/4.0.11-beta-23409": {
+        "type": "package",
+        "dependencies": {
+          "System.Collections": "4.0.10",
+          "System.Globalization": "4.0.10",
+          "System.Resources.ResourceManager": "4.0.0",
+          "System.Runtime": "4.0.20",
+          "System.Runtime.Extensions": "4.0.10",
+          "System.Threading": "4.0.10"
+        },
+        "compile": {
+          "ref/dotnet/System.Text.RegularExpressions.dll": {}
+        },
+        "runtime": {
+          "lib/dotnet/System.Text.RegularExpressions.dll": {}
+        }
+      },
       "System.Threading/4.0.11-beta-23409": {
         "type": "package",
         "dependencies": {
@@ -359,6 +377,7 @@
           "System.Console": "4.0.0-beta-23409",
           "System.Linq": "4.0.1-beta-23409",
           "System.Runtime": "4.0.21-beta-23409",
+          "System.Text.RegularExpressions": "4.0.11-beta-23409",
           "System.Threading": "4.0.11-beta-23409"
         }
       },
@@ -734,6 +753,23 @@
         },
         "runtime": {
           "lib/DNXCore50/System.Text.Encoding.Extensions.dll": {}
+        }
+      },
+      "System.Text.RegularExpressions/4.0.11-beta-23409": {
+        "type": "package",
+        "dependencies": {
+          "System.Collections": "4.0.10",
+          "System.Globalization": "4.0.10",
+          "System.Resources.ResourceManager": "4.0.0",
+          "System.Runtime": "4.0.20",
+          "System.Runtime.Extensions": "4.0.10",
+          "System.Threading": "4.0.10"
+        },
+        "compile": {
+          "ref/dotnet/System.Text.RegularExpressions.dll": {}
+        },
+        "runtime": {
+          "lib/dotnet/System.Text.RegularExpressions.dll": {}
         }
       },
       "System.Threading/4.0.11-beta-23409": {
@@ -782,6 +818,7 @@
           "System.Console": "4.0.0-beta-23409",
           "System.Linq": "4.0.1-beta-23409",
           "System.Runtime": "4.0.21-beta-23409",
+          "System.Text.RegularExpressions": "4.0.11-beta-23409",
           "System.Threading": "4.0.11-beta-23409"
         }
       },
@@ -1157,6 +1194,23 @@
         },
         "runtime": {
           "lib/DNXCore50/System.Text.Encoding.Extensions.dll": {}
+        }
+      },
+      "System.Text.RegularExpressions/4.0.11-beta-23409": {
+        "type": "package",
+        "dependencies": {
+          "System.Collections": "4.0.10",
+          "System.Globalization": "4.0.10",
+          "System.Resources.ResourceManager": "4.0.0",
+          "System.Runtime": "4.0.20",
+          "System.Runtime.Extensions": "4.0.10",
+          "System.Threading": "4.0.10"
+        },
+        "compile": {
+          "ref/dotnet/System.Text.RegularExpressions.dll": {}
+        },
+        "runtime": {
+          "lib/dotnet/System.Text.RegularExpressions.dll": {}
         }
       },
       "System.Threading/4.0.11-beta-23409": {
@@ -2205,6 +2259,38 @@
         "System.Text.Encoding.Extensions.4.0.10.nupkg",
         "System.Text.Encoding.Extensions.4.0.10.nupkg.sha512",
         "System.Text.Encoding.Extensions.nuspec"
+      ]
+    },
+    "System.Text.RegularExpressions/4.0.11-beta-23409": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "qWUv3QOCOhMNeDA00DYEWfibwvEtlRqAGgYljWCJYzt1NunCQCH9z7LBi7Yt8MmUXTlEZVzQoVlT3w1dTv8zbQ==",
+      "files": [
+        "lib/dotnet/de/System.Text.RegularExpressions.xml",
+        "lib/dotnet/es/System.Text.RegularExpressions.xml",
+        "lib/dotnet/fr/System.Text.RegularExpressions.xml",
+        "lib/dotnet/it/System.Text.RegularExpressions.xml",
+        "lib/dotnet/ja/System.Text.RegularExpressions.xml",
+        "lib/dotnet/ko/System.Text.RegularExpressions.xml",
+        "lib/dotnet/ru/System.Text.RegularExpressions.xml",
+        "lib/dotnet/System.Text.RegularExpressions.dll",
+        "lib/dotnet/System.Text.RegularExpressions.xml",
+        "lib/dotnet/zh-hans/System.Text.RegularExpressions.xml",
+        "lib/dotnet/zh-hant/System.Text.RegularExpressions.xml",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net46/_._",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "ref/dotnet/System.Text.RegularExpressions.dll",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net46/_._",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "System.Text.RegularExpressions.4.0.11-beta-23409.nupkg",
+        "System.Text.RegularExpressions.4.0.11-beta-23409.nupkg.sha512",
+        "System.Text.RegularExpressions.nuspec"
       ]
     },
     "System.Threading/4.0.11-beta-23409": {
