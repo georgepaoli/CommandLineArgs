@@ -66,4 +66,15 @@ namespace CommandLineArgs
             Command = command;
         }
     }
+
+    [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class)]
+    public class DefaultRunAllCommandsAttribute : Attribute
+    {
+        public string Command;
+
+        public DefaultRunAllCommandsAttribute()
+        {
+            Command = ".*";
+        }
+    }
 }

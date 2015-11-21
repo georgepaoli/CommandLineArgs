@@ -92,11 +92,5 @@ namespace CommandLineArgs.Tests
             Assert.Equal(101011101, foo.NullableInt);
             Assert.Equal(FooEnum.SomeEnumValue, foo.EnumValue);
         }
-
-        public static int Main(string[] args)
-        {
-            ConsoleApp.StartApp<SimpleTests>(args);
-            return 0;
-        }
     }
 }

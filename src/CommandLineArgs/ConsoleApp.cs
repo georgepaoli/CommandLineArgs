@@ -47,6 +47,11 @@ namespace CommandLineArgs
                     {
                         paramInfo.CanPopArg = true;
                     }
+
+                    if (customAttribute as PopRemainingArgs != null)
+                    {
+                        paramInfo.IsPoppingRemainingArgs = true;
+                    }
                 }
             }
         }

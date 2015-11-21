@@ -10,6 +10,7 @@ namespace CommandLineArgs
     {
         public bool IsRequired = false;
         public bool CanPopArg = false;
+        public bool IsPoppingRemainingArgs = false;
         public List<int> PositionsInCommandLineArgs;
 
         private FieldInfo _field;
@@ -21,50 +22,68 @@ namespace CommandLineArgs
 
         public bool TrySetSingleValueFromNamedArg<T>(ref T obj, CommandLineArgs commandLineArgs)
         {
+            return TrySetSingleValueFromNamedArg(ref obj, commandLineArgs, FieldSetter);
+        }
+
+        public bool FieldSetter(CommandLineArgs commandLineArgs, object retObj, string value, int? position)
+        {
+            object resolvedValue = StringConverters.ToType(value, _field.FieldType);
+            if (resolvedValue != null)
+            {
+                if (position.HasValue)
+                {
+                    commandLineArgs.UseArg(position.Value);
+                }
+
+                _field.SetValue(retObj, value);
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TrySetSingleValueFromNamedArg<T>(ref T obj, CommandLineArgs commandLineArgs, Func<CommandLineArgs, object, string, int?, bool> setter)
+        {
             if (PositionsInCommandLineArgs == null)
             {
                 return false;
             }
 
-            if (PositionsInCommandLineArgs.Count != 1)
+            if (PositionsInCommandLineArgs.Count == 0)
             {
                 return false;
             }
 
-            object resolvedValue;
             int argPosition = PositionsInCommandLineArgs[0];
-            commandLineArgs.UseArg(argPosition);
+            // -name=value  -name:value  /name=value  /name:value
+            if (commandLineArgs.CmdLineArgs[argPosition].Value != null)
+            {
+                if (setter(commandLineArgs, obj, commandLineArgs.CmdLineArgs[argPosition + 1].Value, argPosition + 1))
+                {
+                    return true;
+                }
+            }
+
+            // -name value /name value
+            if (commandLineArgs.CmdLineArgs[argPosition].Value == null
+                && argPosition + 1 < commandLineArgs.CmdLineArgs.Length
+                && commandLineArgs.CmdLineArgs[argPosition + 1].Name == null
+                && commandLineArgs.CmdLineArgs[argPosition + 1].Value != null)
+            {
+                if (setter(commandLineArgs, obj, commandLineArgs.CmdLineArgs[argPosition + 1].Value, argPosition + 1))
+                {
+                    return true;
+                }
+
+                // TODO: should report that /name found but no valid value found?
+            }
+
+            // /flag
             if (commandLineArgs.CmdLineArgs[argPosition].Value == null)
             {
-                int i = argPosition + 1;
-                if (i < commandLineArgs.CmdLineArgs.Length && commandLineArgs.CmdLineArgs[i].Name == null && commandLineArgs.CmdLineArgs[i].Value != null)
-                {
-                    resolvedValue = StringConverters.ToType(commandLineArgs.CmdLineArgs[i].Value, _field.FieldType);
-                    if (resolvedValue != null)
-                    {
-                        commandLineArgs.UseArg(i);
-                        _field.SetValue(obj, resolvedValue);
-                        // TODO: should report invalid type?
-                        return true;
-                    }
-                }
-
-                // Bool is the only exception where value is not required as presence of flag tells you "true"
-                if (_field.FieldType == typeof(bool))
+                if (_field.FieldType == typeof(bool) || _field.FieldType == typeof(bool?))
                 {
                     _field.SetValue(obj, true);
-                    return true;
-                }
-
-                // TODO: should report that /name found but value is missing?
-            }
-            else
-            {
-                resolvedValue = StringConverters.ToType(commandLineArgs.CmdLineArgs[argPosition].Value, _field.FieldType);
-                if (resolvedValue != null)
-                {
-                    _field.SetValue(obj, resolvedValue);
-                    return true;
                 }
             }
 
