@@ -46,8 +46,13 @@ namespace CommandLineArgs
     {
     }
 
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
     public class PopArgAttribute : Attribute
+    {
+    }
+
+    [AttributeUsage(AttributeTargets.Field)]
+    public class PopRemainingArgs : Attribute
     {
     }
 

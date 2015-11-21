@@ -166,6 +166,7 @@ namespace CommandLineArgs
             StartApp(typeof(T), args);
         }
 
+        // TODO: the story is too long, split to chapters
         public static void StartApp(Type t, string[] args)
         {
             object ret = Activator.CreateInstance(t);
@@ -222,22 +223,58 @@ namespace CommandLineArgs
                     headerPrinted = true;
                 }
 
+                bool required = field.GetCustomAttribute(typeof(RequiredAttribute)) != null;
+
                 Console.Write("    ");
 
-                if (field.GetCustomAttribute(typeof(RequiredAttribute)) != null)
+                if (!required)
                 {
-                    Console.Write("[Required] ");
+                    Console.Write("[");
                 }
 
-                Console.Write($"--{field.Name}");
+                List<string> names = new List<string>();
+                names.Add(field.Name);
+
                 foreach (var attribute in field.GetCustomAttributes())
                 {
                     var alias = attribute as AliasAttribute;
                     if (alias != null)
                     {
-                        Console.Write($"-{alias.Name}");
+                        names.Add(alias.Name);
                     }
                 }
+
+                if (names.Count == 1)
+                {
+                    Console.Write($"/{names[0]}");
+                }
+                else
+                {
+                    Console.Write("/(");
+                    bool first = true;
+                    foreach (var name in names)
+                    {
+                        if (first)
+                        {
+                            first = false;
+                        }
+                        else
+                        {
+                            Console.Write("|");
+                        }
+                        Console.Write($"{name}");
+                    }
+                    Console.Write(")");
+                }
+
+                Console.Write($"=<{field.FieldType.Name}>");
+
+                if (!required)
+                {
+                    Console.Write("]");
+                }
+
+                Console.WriteLine();
             }
         }
     }

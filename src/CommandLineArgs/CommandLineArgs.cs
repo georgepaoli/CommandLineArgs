@@ -48,6 +48,19 @@ namespace CommandLineArgs
             return null;
         }
 
+        public List<string> PopRemainingArgs()
+        {
+            List<string> ret = new List<string>();
+            string s;
+            while ((s = PeekPopArg()) != null)
+            {
+                PopArg();
+                ret.Add(s);
+            }
+
+            return ret;
+        }
+
         public void PopArg()
         {
             UseArg(_positionFromLeft);

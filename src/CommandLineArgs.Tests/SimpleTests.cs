@@ -5,11 +5,6 @@ namespace CommandLineArgs.Tests
     [DefaultCommand(".*")]
     public class SimpleTests
     {
-        //public void IntentionallyFailing()
-        //{
-        //    Assert.True(false);
-        //}
-
         public void EmptyArgListSetsValuesToDefault()
         {
             ExampleClass foo = ConsoleApp.FromCommandLineArgs<ExampleClass>(new string[0]);
@@ -91,9 +86,9 @@ namespace CommandLineArgs.Tests
         public void SettingInOrderUsingPopArg()
         {
             ExampleClass foo = ConsoleApp.FromCommandLineArgs<ExampleClass>(new string[] { "asd", "true" });
-            Assert.Equal("asd", foo.StringValue); // set
-            Assert.Equal(0, foo.IntValue); // not set
-            Assert.True(foo.BoolValue); // set
+            Assert.Equal("asd", foo.StringValue); // pops arg
+            Assert.Equal(0, foo.IntValue);
+            Assert.True(foo.BoolValue); // pops arg
             Assert.Equal(101011101, foo.NullableInt);
             Assert.Equal(FooEnum.SomeEnumValue, foo.EnumValue);
         }
