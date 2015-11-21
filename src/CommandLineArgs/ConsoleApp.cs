@@ -117,18 +117,20 @@ namespace CommandLineArgs
             foreach (var function in functions)
             {
                 result.NumberOfRunCommands++;
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine($"--- Running {function.Name} ---");
+                Console.ResetColor();
                 try
                 {
                     function.Invoke(obj);
                 }
-                catch (Exception e)
+                catch (TargetInvocationException wrapped)
                 {
                     result.NumberOfFailedCommands++;
-                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.Error.WriteLine($"!!! Finished running {function.Name} with exception !!!");
-                    Console.Error.WriteLine(e);
                     Console.ResetColor();
+                    Console.Error.WriteLine(wrapped.InnerException);
                 }
             }
 
@@ -143,7 +145,10 @@ namespace CommandLineArgs
                 case 1: return true;
                 default:
                 {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine($"---=== Finished running {result.NumberOfRunCommands} commands ===---");
+                    Console.ResetColor();
+
                     if (result.NumberOfFailedCommands > 0)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
