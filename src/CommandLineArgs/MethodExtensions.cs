@@ -14,9 +14,9 @@ namespace CommandLineArgs
             method.Invoke(method.IsStatic ? null : obj, null);
         }
 
-        public static IEnumerable<MethodInfo> GetListFromType(Type t)
+        public static IEnumerable<MethodInfo> GetListFromType(TypeInfo t)
         {
-            foreach (var method in t.GetTypeInfo().DeclaredMethods)
+            foreach (var method in t.DeclaredMethods)
             {
                 if (method.IsPublic && method.GetParameters().Length == 0 && method.ReturnType == typeof(void))
                 {

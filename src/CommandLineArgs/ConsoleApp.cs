@@ -12,9 +12,9 @@ namespace CommandLineArgs
         internal ParamInfo[] Params;
         private Dictionary<string, ParamInfo> _nameOrAliasToName = new Dictionary<string, ParamInfo>(Constants.Comparer);
 
-        private ConsoleApp(Type type)
+        private ConsoleApp(TypeInfo type)
         {
-            FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
+            FieldInfo[] fields = type.AsType().GetFields(BindingFlags.Instance | BindingFlags.Public);
             Params = new ParamInfo[fields.Length];
 
             for (int i = 0; i < fields.Length; i++)
@@ -50,7 +50,11 @@ namespace CommandLineArgs
 
                     if (customAttribute as PopRemainingArgs != null)
                     {
-                        paramInfo.IsPoppingRemainingArgs = true;
+                        // TODO: other types
+                        if (paramInfo.Field.FieldType == typeof(List<string>));
+                        {
+                            paramInfo.IsPoppingRemainingArgs = true;
+                        }
                     }
                 }
             }
@@ -76,17 +80,17 @@ namespace CommandLineArgs
 
         public static T FromCommandLineArgs<T>(string[] args)
         {
-            return (T)FromCommandLineArgs(typeof(T), args);
+            return (T)FromCommandLineArgs(typeof(T).GetTypeInfo(), args);
         }
 
-        public static object FromCommandLineArgs(Type t, string[] args)
+        public static object FromCommandLineArgs(TypeInfo t, string[] args)
         {
-            object ret = Activator.CreateInstance(t);
+            object ret = Activator.CreateInstance(t.AsType());
             FromCommandLineArgs(t, ref ret, new CommandLineArgs(args));
             return ret;
         }
 
-        internal static void FromCommandLineArgs(Type t, ref object obj, CommandLineArgs commandLineArgs)
+        internal static void FromCommandLineArgs(TypeInfo t, ref object obj, CommandLineArgs commandLineArgs)
         {
             ConsoleApp app = new ConsoleApp(t);
             app.BindCommandLineArgs(commandLineArgs);
@@ -95,7 +99,7 @@ namespace CommandLineArgs
 
             for (int i = 0; i < app.Params.Length; i++)
             {
-                if (app.Params[i].TrySetSingleValueFromNamedArg(ref obj, commandLineArgs))
+                if (app.Params[i].TryBindValueWithArgs(ref obj, commandLineArgs))
                 {
                     paramsWithSetValues[i] = true;
                 }
@@ -103,6 +107,24 @@ namespace CommandLineArgs
 
             for (int i = 0; i < app.Params.Length; i++)
             {
+                if (app.Params[i].IsPoppingRemainingArgs)
+                {
+                    // TODO: Do not substitute list and add instead
+                    List<string> remainingArgs = commandLineArgs.PopRemainingArgs();
+
+                    // TODO: support different types
+                    List<string> existing = app.Params[i].Field.GetValue(obj) as List<string>;
+                    if (existing != null)
+                    {
+                        existing.AddRange(remainingArgs);
+                    }
+                    else
+                    {
+                        app.Params[i].Field.SetValue(obj, remainingArgs);
+                    }
+                    
+                    continue;
+                }
                 if (!paramsWithSetValues[i] && !app.Params[i].TrySetSingleValueFromConsecutiveArg(ref obj, commandLineArgs))
                 {
                     app.Params[i].ThrowIfRequiredArg();
@@ -110,185 +132,76 @@ namespace CommandLineArgs
             }
         }
 
-        private class RunCommandsResult
+        public static void StartApp(string[] args)
         {
-            public int NumberOfRunCommands = 0;
-            public int NumberOfFailedCommands = 0;
-        }
-
-        private static RunCommandsResult RunCommands(IEnumerable<MethodInfo> functions, object obj)
-        {
-            // compiler should optimize it (if not the report it)
-            bool hasManyCommands = functions.Count() >= 2;
-
-            RunCommandsResult result = new RunCommandsResult();
-            foreach (var function in functions)
+            foreach (var type in typeof(ConsoleApp).GetTypeInfo().Assembly.DefinedTypes)
             {
-                result.NumberOfRunCommands++;
-
-                if (hasManyCommands)
+                if (type.GetCustomAttribute(typeof(DefaultCommandAttribute)) != null)
                 {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine($"--- Running {function.Name} ---");
-                    Console.ResetColor();
-                }
-
-                try
-                {
-                    function.Invoke(obj);
-                }
-                catch (TargetInvocationException wrapped)
-                {
-                    result.NumberOfFailedCommands++;
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Error.WriteLine($"!!! Finished running {function.Name} with exception !!!");
-                    Console.ResetColor();
-                    Console.Error.WriteLine(wrapped.InnerException);
+                    StartApp(type, args);
                 }
             }
-
-            return result;
-        }
-
-        private static bool PrintReport(RunCommandsResult result)
-        {
-            switch (result.NumberOfRunCommands)
-            {
-                case 0: return false;
-                case 1: return true;
-                default:
-                {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.WriteLine($"---=== Finished running {result.NumberOfRunCommands} commands ===---");
-                    Console.ResetColor();
-
-                    if (result.NumberOfFailedCommands > 0)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Error.WriteLine($"---=== {result.NumberOfFailedCommands} of them failed ===---");
-                        Console.ResetColor();
-                    }
-                    return true;
-                }
-            }
-
         }
 
         public static void StartApp<T>(string[] args)
         {
-            StartApp(typeof(T), args);
+            StartApp(typeof(T).GetTypeInfo(), args);
         }
 
-        // TODO: the story is too long, split to chapters
-        public static void StartApp(Type t, string[] args)
+        private static void PrintCommandDescription(FieldInfo field)
         {
-            object ret = Activator.CreateInstance(t);
+            bool required = field.GetCustomAttribute(typeof(RequiredAttribute)) != null;
 
-            var functions = MethodExtensions.GetListFromType(t);
+            Console.Write("    ");
 
-            if (args.Length >= 1)
+            if (!required)
             {
-                FromCommandLineArgs(t, ref ret, new CommandLineArgs(args.Slice(1)));
-                if (!PrintReport(RunCommands(functions.MatchName(args[0]), ret)))
+                Console.Write("[");
+            }
+
+            List<string> names = new List<string>();
+            names.Add(field.Name);
+
+            foreach (var attribute in field.GetCustomAttributes())
+            {
+                var alias = attribute as AliasAttribute;
+                if (alias != null)
                 {
-                    return;
+                    names.Add(alias.Name);
                 }
             }
 
-            bool commandRun = false;
-            foreach (var attribute in t.GetTypeInfo().GetCustomAttributes())
+            if (names.Count == 1)
             {
-                var defaultCommand = attribute as DefaultCommandAttribute;
-                if (defaultCommand != null)
+                Console.Write($"/{names[0]}");
+            }
+            else
+            {
+                Console.Write("/(");
+                bool first = true;
+                foreach (var name in names)
                 {
-                    FromCommandLineArgs(t, ref ret, new CommandLineArgs(args));
-                    if (PrintReport(RunCommands(functions.MatchName(defaultCommand.Command), ret)))
+                    if (first)
                     {
-                        commandRun = true;
-                        return;
+                        first = false;
                     }
-                }
-            }
-
-            if (commandRun)
-            {
-                return;
-            }
-
-            bool headerPrinted = false;
-            foreach (var method in functions)
-            {
-                if (!headerPrinted)
-                {
-                    Console.WriteLine("List of available commands:");
-                    headerPrinted = true;
-                }
-
-                Console.WriteLine($"    {method.Name}");
-            }
-
-            headerPrinted = false;
-            foreach (var field in t.GetTypeInfo().DeclaredFields)
-            {
-                if (!headerPrinted)
-                {
-                    Console.WriteLine("List of available parameters:");
-                    headerPrinted = true;
-                }
-
-                bool required = field.GetCustomAttribute(typeof(RequiredAttribute)) != null;
-
-                Console.Write("    ");
-
-                if (!required)
-                {
-                    Console.Write("[");
-                }
-
-                List<string> names = new List<string>();
-                names.Add(field.Name);
-
-                foreach (var attribute in field.GetCustomAttributes())
-                {
-                    var alias = attribute as AliasAttribute;
-                    if (alias != null)
+                    else
                     {
-                        names.Add(alias.Name);
+                        Console.Write("|");
                     }
+                    Console.Write($"{name}");
                 }
-
-                if (names.Count == 1)
-                {
-                    Console.Write($"/{names[0]}");
-                }
-                else
-                {
-                    Console.Write("/(");
-                    bool first = true;
-                    foreach (var name in names)
-                    {
-                        if (first)
-                        {
-                            first = false;
-                        }
-                        else
-                        {
-                            Console.Write("|");
-                        }
-                        Console.Write($"{name}");
-                    }
-                    Console.Write(")");
-                }
-
-                Console.Write($"=<{field.FieldType.Name}>");
-
-                if (!required)
-                {
-                    Console.Write("]");
-                }
-
-                Console.WriteLine();
+                Console.Write(")");
             }
+
+            Console.Write($"=<{field.FieldType.Name}>");
+
+            if (!required)
+            {
+                Console.Write("]");
+            }
+
+            Console.WriteLine();
         }
     }
 }

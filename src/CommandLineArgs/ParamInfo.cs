@@ -12,37 +12,32 @@ namespace CommandLineArgs
         public bool CanPopArg = false;
         public bool IsPoppingRemainingArgs = false;
         public List<int> PositionsInCommandLineArgs;
-
-        private FieldInfo _field;
+        public FieldInfo Field;
 
         public ParamInfo(int position, FieldInfo field)
         {
-            _field = field;
+            Field = field;
         }
 
-        public bool TrySetSingleValueFromNamedArg<T>(ref T obj, CommandLineArgs commandLineArgs)
+        public bool FieldFromArgumentOnPositionSetter(CommandLineArgs commandLineArgs, object retObj, int position)
         {
-            return TrySetSingleValueFromNamedArg(ref obj, commandLineArgs, FieldSetter);
-        }
+            if (commandLineArgs.CmdLineArgs[position].Value == null)
+            {
+                return false;
+            }
 
-        public bool FieldSetter(CommandLineArgs commandLineArgs, object retObj, string value, int? position)
-        {
-            object resolvedValue = StringConverters.ToType(value, _field.FieldType);
+            object resolvedValue = StringConverters.ToType(commandLineArgs.CmdLineArgs[position].Value, Field.FieldType);
             if (resolvedValue != null)
             {
-                if (position.HasValue)
-                {
-                    commandLineArgs.UseArg(position.Value);
-                }
-
-                _field.SetValue(retObj, value);
+                commandLineArgs.UseArg(position);
+                Field.SetValue(retObj, resolvedValue);
                 return true;
             }
 
             return false;
         }
 
-        public bool TrySetSingleValueFromNamedArg<T>(ref T obj, CommandLineArgs commandLineArgs, Func<CommandLineArgs, object, string, int?, bool> setter)
+        public bool TryBindValueWithArgs<T>(ref T obj, CommandLineArgs commandLineArgs)
         {
             if (PositionsInCommandLineArgs == null)
             {
@@ -56,21 +51,17 @@ namespace CommandLineArgs
 
             int argPosition = PositionsInCommandLineArgs[0];
             // -name=value  -name:value  /name=value  /name:value
-            if (commandLineArgs.CmdLineArgs[argPosition].Value != null)
+            if (FieldFromArgumentOnPositionSetter(commandLineArgs, obj, argPosition))
             {
-                if (setter(commandLineArgs, obj, commandLineArgs.CmdLineArgs[argPosition + 1].Value, argPosition + 1))
-                {
-                    return true;
-                }
+                return true;
             }
 
             // -name value /name value
             if (commandLineArgs.CmdLineArgs[argPosition].Value == null
                 && argPosition + 1 < commandLineArgs.CmdLineArgs.Length
-                && commandLineArgs.CmdLineArgs[argPosition + 1].Name == null
-                && commandLineArgs.CmdLineArgs[argPosition + 1].Value != null)
+                && commandLineArgs.CmdLineArgs[argPosition + 1].Name == null)
             {
-                if (setter(commandLineArgs, obj, commandLineArgs.CmdLineArgs[argPosition + 1].Value, argPosition + 1))
+                if (FieldFromArgumentOnPositionSetter(commandLineArgs, obj, argPosition + 1))
                 {
                     return true;
                 }
@@ -81,9 +72,10 @@ namespace CommandLineArgs
             // /flag
             if (commandLineArgs.CmdLineArgs[argPosition].Value == null)
             {
-                if (_field.FieldType == typeof(bool) || _field.FieldType == typeof(bool?))
+                if (Field.FieldType == typeof(bool) || Field.FieldType == typeof(bool?))
                 {
-                    _field.SetValue(obj, true);
+                    commandLineArgs.UseArg(argPosition);
+                    Field.SetValue(obj, true);
                 }
             }
 
@@ -97,11 +89,11 @@ namespace CommandLineArgs
                 string value = commandLineArgs.PeekPopArg();
                 if (value != null)
                 {
-                    object resolvedValue = StringConverters.ToType(value, _field.FieldType);
+                    object resolvedValue = StringConverters.ToType(value, Field.FieldType);
                     if (resolvedValue != null)
                     {
                         commandLineArgs.PopArg();
-                        _field.SetValue(obj, resolvedValue);
+                        Field.SetValue(obj, resolvedValue);
                         return true;
                     }
 
@@ -116,7 +108,7 @@ namespace CommandLineArgs
         {
             if (IsRequired)
             {
-                throw new ArgumentNullException("Required value {0} not set.", _field.Name);
+                throw new ArgumentNullException("Required value {0} not set.", Field.Name);
             }
         }
     }

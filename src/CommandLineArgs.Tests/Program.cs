@@ -5,12 +5,11 @@ using System.Threading.Tasks;
 
 namespace CommandLineArgs.Tests
 {
-    public class Tests
+    public class Program
     {
         public static int Main(string[] args)
         {
-            ConsoleApp.StartApp<SimpleTests>(args);
-            ConsoleApp.StartApp<FutureFeatures>(args);
+            ConsoleApp.StartApp(args);
             return 0;
         }
     }

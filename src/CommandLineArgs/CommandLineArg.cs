@@ -46,7 +46,7 @@ namespace CommandLineArgs
                 throw new ArgumentNullException("arg");
             }
 
-            if (arg[0] != '/')
+            if (arg[0] != '/' && arg[0] != '-')
             {
                 return FromValue(arg);
             };
@@ -58,8 +58,14 @@ namespace CommandLineArgs
             }
             else
             {
+                int startPos = 1;
+                if (arg.Length >= 2 && arg[1] == '-')
+                {
+                    startPos++;
+                }
+
                 return FromNameValue(
-                    name: arg.Substring(1, p - 1),
+                    name: arg.Substring(startPos, p - 1),
                     value: arg.Substring(p + 1));
             }
         }

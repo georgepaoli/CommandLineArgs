@@ -7,13 +7,15 @@ namespace CommandLineArgs
 {
     internal class CommandLineArgs
     {
+        public string[] Args;
         public CommandLineArg[] CmdLineArgs;
-        bool[] _usedArgs;
+        public bool[] UsedArgs;
         int _positionFromLeft = 0;
 
         public CommandLineArgs(string[] args)
         {
-            _usedArgs = new bool[args.Length];
+            Args = args;
+            UsedArgs = new bool[args.Length];
 
             CmdLineArgs = new CommandLineArg[args.Length];
             for (int i = 0; i < args.Length; i++)
@@ -24,19 +26,19 @@ namespace CommandLineArgs
 
         public void UseArg(int position)
         {
-            if (_usedArgs[position])
+            if (UsedArgs[position])
             {
                 throw new ArgumentException(string.Format("Multiple fields trying to use arg at position {0}", position));
             }
 
-            _usedArgs[position] = true;
+            UsedArgs[position] = true;
         }
 
         public string PeekPopArg()
         {
-            for (; _positionFromLeft < _usedArgs.Length; _positionFromLeft++)
+            for (; _positionFromLeft < UsedArgs.Length; _positionFromLeft++)
             {
-                if (!_usedArgs[_positionFromLeft])
+                if (!UsedArgs[_positionFromLeft])
                 {
                     if (CmdLineArgs[_positionFromLeft].Value != null)
                     {
@@ -68,12 +70,12 @@ namespace CommandLineArgs
 
         public bool TryUseArg(int position)
         {
-            if (_usedArgs[position])
+            if (UsedArgs[position])
             {
                 return false;
             }
 
-            _usedArgs[position] = true;
+            UsedArgs[position] = true;
             return true;
         }
     }

@@ -14,7 +14,7 @@ namespace CommandLineArgs.Tests
 
         public void FutureFeature_SupportsMultipleSingleCharBoolFlags()
         {
-            ConsoleApp.StartApp<FutureFeatures>(new string[] { "-abc" });
+            ConsoleApp.FromCommandLineArgs<FutureFeatures>(new string[] { "-abc" }).Start();
         }
 
         public void Start()
