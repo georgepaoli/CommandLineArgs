@@ -113,13 +113,21 @@ namespace CommandLineArgs
 
         private static RunCommandsResult RunCommands(IEnumerable<MethodInfo> functions, object obj)
         {
+            // compiler should optimize it (if not the report it)
+            bool hasManyCommands = functions.Count() >= 2;
+
             RunCommandsResult result = new RunCommandsResult();
             foreach (var function in functions)
             {
                 result.NumberOfRunCommands++;
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine($"--- Running {function.Name} ---");
-                Console.ResetColor();
+
+                if (hasManyCommands)
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine($"--- Running {function.Name} ---");
+                    Console.ResetColor();
+                }
+
                 try
                 {
                     function.Invoke(obj);
