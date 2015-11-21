@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace CommandLineArgs
 {
+    // TODO: add description for help
     [AttributeUsage(AttributeTargets.Field)]
     public class DescriptionAttribute : Attribute
     {
@@ -16,7 +17,7 @@ namespace CommandLineArgs
         }
     }
 
-    // TODO: add something like this
+    // TODO: add something like this - see [Alias] comment as it might be consolidated
     [Flags]
     public enum AliasType
     {
@@ -30,6 +31,15 @@ namespace CommandLineArgs
         DashDashNameEqualsValue = 32
     }
 
+    // TODO: This should accept following forms:
+    // "name" - adds: --name, -name, /name
+    // "-name" - adds only -name
+    // "n|name" - adds -n --n /n --name -name /name
+    // "-n|name"....
+    // you got the idea
+    /// <summary>
+    /// Alternative name for parameter
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Class, AllowMultiple = true)]
     public class AliasAttribute : Attribute
     {
@@ -41,16 +51,36 @@ namespace CommandLineArgs
         }
     }
 
+    /// <summary>
+    /// Disables automatically adding field name as an alias
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public class NoDefaultAliasAttribute : Attribute
+    {
+    }
+
+    /// <summary>
+    /// Marks parameter as required.
+    /// Exception will be thrown when nothing bound.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class RequiredAttribute : Attribute
     {
     }
 
+    /// <summary>
+    /// For single values: If not bound by name then tries to bind with first free argument from the left if available and when the conversion to target parameter is possible
+    /// For arrays: Takes first free arg from the left if available and when the conversion to target parameter is possible
+    /// Possible to use it multiple times on arrays (i.e. when exact amount of args to pop is known)
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
     public class PopArgAttribute : Attribute
     {
     }
 
+    /// <summary>
+    /// Binds with all remaining args which can be converted to target parameter
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class PopRemainingArgs : Attribute
     {

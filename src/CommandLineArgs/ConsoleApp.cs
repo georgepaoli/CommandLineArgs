@@ -25,38 +25,7 @@ namespace CommandLineArgs
 
                 _nameOrAliasToName.Add(field.Name, paramInfo);
 
-                foreach (var customAttribute in field.GetCustomAttributes())
-                {
-                    var asAlias = customAttribute as AliasAttribute;
-                    if (asAlias != null)
-                    {
-                        if (_nameOrAliasToName.ContainsKey(asAlias.Name))
-                        {
-                            throw new ArgumentException($"More than one value defines the same name {asAlias.Name}");
-                        }
 
-                        _nameOrAliasToName.Add(asAlias.Name, paramInfo);
-                    }
-
-                    if (customAttribute as RequiredAttribute != null)
-                    {
-                        paramInfo.IsRequired = true;
-                    }
-
-                    if (customAttribute as PopArgAttribute != null)
-                    {
-                        paramInfo.CanPopArg = true;
-                    }
-
-                    if (customAttribute as PopRemainingArgs != null)
-                    {
-                        // TODO: other types
-                        if (paramInfo.Field.FieldType == typeof(List<string>));
-                        {
-                            paramInfo.IsPoppingRemainingArgs = true;
-                        }
-                    }
-                }
             }
         }
 

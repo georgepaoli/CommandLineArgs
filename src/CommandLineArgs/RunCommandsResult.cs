@@ -5,17 +5,21 @@ using System.Reflection;
 
 namespace CommandLineArgs
 {
-    public class RunCommandsResult
+    public class Commands
     {
         // inputs
-        public TypeInfo Type;
-        public string[] Args;
+        public List<TypeInfo> Types = new List<TypeInfo>();
+        public LinkedList<string> Args;
 
         // outputs
+        public List<
         public int NumberOfRunCommands = 0;
         public int NumberOfFailedCommands = 0;
+        
+        public 
 
-        // TODO: the story is too long, split to chapters
+        public void Create
+
         public void StartApp()
         {
             object ret = Activator.CreateInstance(Type);
@@ -23,9 +27,9 @@ namespace CommandLineArgs
             if (Args.Length >= 1)
             {
                 ConsoleApp app = 
-                FromCommandLineArgs(t, ref ret, new CommandLineArgs(args.Slice(1)));
-                RunCommandsResult result = new RunCommandsResult();
-                result.RunCommands(MethodExtensions.GetListFromType(t));
+                FromCommandLineArgs(Type, ref ret, new CommandLineArgs(Args.Slice(1)));
+                Commands result = new Commands();
+                result.RunCommands(MethodExtensions.GetListFromType(Type));
                 return RunCommands(ret, functions.MatchName(args[0]));
             }
 
@@ -101,7 +105,7 @@ namespace CommandLineArgs
             }
         }
 
-        public void PrintReport(RunCommandsResult result)
+        public void PrintReport(Commands result)
         {
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine($"---=== Finished running {result.NumberOfRunCommands} commands ===---");
