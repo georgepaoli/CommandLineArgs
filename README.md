@@ -5,7 +5,7 @@ Please mind that everything is being prototyped right now so anything may change
 
 # Download
 ```
-Nothing to download yet. Unfortunatelly you will not to build it yourself :(
+Nothing to download yet. Unfortunatelly you will need to build it yourself :(
 ```
 
 # Quick Start in examples
