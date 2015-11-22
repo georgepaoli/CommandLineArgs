@@ -21,12 +21,12 @@ namespace CommandLineArgs
 
         public bool FieldFromArgumentOnPositionSetter(CommandLineArgs commandLineArgs, object retObj, int position)
         {
-            if (commandLineArgs.CmdLineArgs[position].Value == null)
+            if (commandLineArgs.Args[position].Value == null)
             {
                 return false;
             }
 
-            object resolvedValue = StringConverters.ToType(commandLineArgs.CmdLineArgs[position].Value, Field.FieldType);
+            object resolvedValue = StringConverters.ToType(commandLineArgs.Args[position].Value, Field.FieldType);
             if (resolvedValue != null)
             {
                 commandLineArgs.UseArg(position);
@@ -57,9 +57,9 @@ namespace CommandLineArgs
             }
 
             // -name value /name value
-            if (commandLineArgs.CmdLineArgs[argPosition].Value == null
-                && argPosition + 1 < commandLineArgs.CmdLineArgs.Length
-                && commandLineArgs.CmdLineArgs[argPosition + 1].Name == null)
+            if (commandLineArgs.Args[argPosition].Value == null
+                && argPosition + 1 < commandLineArgs.Args.Length
+                && commandLineArgs.Args[argPosition + 1].Name == null)
             {
                 if (FieldFromArgumentOnPositionSetter(commandLineArgs, obj, argPosition + 1))
                 {
@@ -70,7 +70,7 @@ namespace CommandLineArgs
             }
 
             // /flag
-            if (commandLineArgs.CmdLineArgs[argPosition].Value == null)
+            if (commandLineArgs.Args[argPosition].Value == null)
             {
                 if (Field.FieldType == typeof(bool) || Field.FieldType == typeof(bool?))
                 {

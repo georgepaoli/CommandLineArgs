@@ -14,10 +14,10 @@ namespace CommandLineArgs
         private void BindCommandLineArgs(CommandLineArgs commandLineArgs)
         {
             var ret = new Dictionary<string, List<int>>(Constants.Comparer);
-            for (int i = 0; i < commandLineArgs.CmdLineArgs.Length; i++)
+            for (int i = 0; i < commandLineArgs.Args.Length; i++)
             {
                 ParamInfo paramInfo;
-                if (commandLineArgs.CmdLineArgs[i].Name != null && NameToParam.TryGetValue(commandLineArgs.CmdLineArgs[i].Name, out paramInfo))
+                if (commandLineArgs.Args[i].Name != null && NameToParam.TryGetValue(commandLineArgs.Args[i].Name, out paramInfo))
                 {
                     if (paramInfo.PositionsInCommandLineArgs == null)
                     {
