@@ -7,27 +7,9 @@ using System.Threading.Tasks;
 
 namespace CommandLineArgs
 {
-    public class ConsoleApp
+    public class ConsoleApp2
     {
-        internal ParamInfo[] Params;
-        private Dictionary<string, ParamInfo> _nameOrAliasToName = new Dictionary<string, ParamInfo>(Constants.Comparer);
 
-        private ConsoleApp(TypeInfo type)
-        {
-            FieldInfo[] fields = type.AsType().GetFields(BindingFlags.Instance | BindingFlags.Public);
-            Params = new ParamInfo[fields.Length];
-
-            for (int i = 0; i < fields.Length; i++)
-            {
-                FieldInfo field = fields[i];
-                ParamInfo paramInfo = new ParamInfo(i, field);
-                Params[i] = paramInfo;
-
-                _nameOrAliasToName.Add(field.Name, paramInfo);
-
-
-            }
-        }
 
         private void BindCommandLineArgs(CommandLineArgs commandLineArgs)
         {
@@ -35,7 +17,7 @@ namespace CommandLineArgs
             for (int i = 0; i < commandLineArgs.CmdLineArgs.Length; i++)
             {
                 ParamInfo paramInfo;
-                if (commandLineArgs.CmdLineArgs[i].Name != null && _nameOrAliasToName.TryGetValue(commandLineArgs.CmdLineArgs[i].Name, out paramInfo))
+                if (commandLineArgs.CmdLineArgs[i].Name != null && NameToParam.TryGetValue(commandLineArgs.CmdLineArgs[i].Name, out paramInfo))
                 {
                     if (paramInfo.PositionsInCommandLineArgs == null)
                     {

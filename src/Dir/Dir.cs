@@ -26,12 +26,6 @@ namespace Dir
         [Alias("s")]
         public bool SubDirectories = false;
 
-        public static int Main(string[] args)
-        {
-            Dir dir = ConsoleApp.FromCommandLineArgs<Dir>(args);
-            return dir.Start();
-        }
-
         public int Start()
         {
             if (NoColor)

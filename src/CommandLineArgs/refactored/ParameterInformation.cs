@@ -8,7 +8,7 @@ namespace CommandLineArgs
 {
     public class ParameterInformation
     {
-        public FieldInfo Field;
+        public FieldInfo Field = null;
         public Type OutputType { get { return Field.FieldType; } }
 
         public List<string> Names = new List<string>();
