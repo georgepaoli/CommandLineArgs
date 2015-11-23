@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CommandLineArgs.refactored.Binders
+namespace CommandLineArgs
 {
     public struct ArgNameValue
     {
@@ -11,32 +11,34 @@ namespace CommandLineArgs.refactored.Binders
         public string Value;
     }
 
-    public class ArgToParamBinder_ByName : IBinder<CommandLineArgs, ConsoleAppParams>
+    public class ArgToParamBinder
     {
-        public Dictionary<string, List<ParameterInformation>> NameToParam = new Dictionary<string, List<ParameterInformation>>(Constants.Comparer);
-        public List<ArgNameValue> ArgsNameValue = new List<ArgNameValue>();
+        [Required][PopArg]
+        public CommandLineArgs Args;
+        [Required][PopArg]
+        public ConsoleAppParams Params;
 
-        public void Bind(CommandLineArgs args, ConsoleAppParams parameters)
-        {
-            PreprocessParams(parameters);
-            PreprocessArgs(args);
-            throw new NotImplementedException();
-        }
+        public StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
 
-        public void PreprocessParams(ConsoleAppParams parameters)
+        public Dictionary<string, List<ParameterInformation>> NameToParam;
+        public void NameToParamGetValue()
         {
-            foreach (var parameterInformation in parameters.Params)
+            NameToParam = new Dictionary<string, List<ParameterInformation>>(Comparer);
+            foreach (var parameterInformation in Params)
             {
                 foreach (string name in parameterInformation.Names)
                 {
                     NameToParam.AddValueToList(name, parameterInformation);
                 }
+
+                ParamsPositionsInArgs.Add(new List<int>());
             }
         }
 
-        public void PreprocessArgs(CommandLineArgs args)
+        public List<ArgNameValue> ArgsNameValue = new List<ArgNameValue>();
+        public void ArgsNameValueGetValue()
         {
-            foreach (var argument in args.Args)
+            foreach (var argument in Args)
             {
                 var arg = argument.OriginalValue;
 
@@ -80,6 +82,21 @@ namespace CommandLineArgs.refactored.Binders
                     });
                 }
             }
+        }
+
+        public List<List<int>> ParamsPositionsInArgs = new List<List<int>>();
+        public void ParamsPositionsInArgsGetValue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Bind()
+        {
+            // note: order of call is exactly the same as doc order
+            // note: it can potentially run it with one command in the future
+            NameToParamGetValue();
+            ArgsNameValueGetValue();
+            ParamsPositionsInArgsGetValue();
         }
     }
 }

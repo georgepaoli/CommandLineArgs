@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace CommandLineArgs
 {
-    public class ConsoleAppParams
+    public class ConsoleAppParams : List<ParameterInformation>
     {
-        public List<ParameterInformation> Params = new List<ParameterInformation>();
-        
         public void AddParameter(ParameterInformation parameterInformation)
         {
-            Params.Add(parameterInformation);
+            Add(parameterInformation);
         }
 
         public void AddParametersFromType(Type type)

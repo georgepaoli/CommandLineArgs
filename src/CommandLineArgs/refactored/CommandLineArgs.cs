@@ -5,17 +5,15 @@ using System.Threading.Tasks;
 
 namespace CommandLineArgs
 {
-    public class CommandLineArgs
+    public class CommandLineArgs : List<CommandLineArg>
     {
-        public List<CommandLineArg> Args = new List<CommandLineArg>();
-
         public void AddArgs(string[] args)
         {
             foreach (var arg in args)
             {
-                Args.Add(new CommandLineArg()
+                Add(new CommandLineArg()
                 {
-                    Position = Args.Count,
+                    Position = Count,
                     OriginalValue = arg,
                     IsUsed = false
                 });
@@ -25,7 +23,7 @@ namespace CommandLineArgs
         public List<CommandLineArg> PopRemainingArgs()
         {
             List<CommandLineArg> ret = new List<CommandLineArg>();
-            foreach (var arg in Args)
+            foreach (var arg in this)
             {
                 if (!arg.IsUsed)
                 {
@@ -46,11 +44,11 @@ namespace CommandLineArgs
                 i++;
             }
 
-            for (; i < Args.Count; i++)
+            for (; i < Count; i++)
             {
-                if (!Args[i].IsUsed)
+                if (!this[i].IsUsed)
                 {
-                    return Args[i];
+                    return this[i];
                 }
             }
 

@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace CommandLineArgs
 {
-    // TODO: Make it generic?
-    public interface IBinder<FromType, ToType>
+    public interface IBinder
     {
-        void Bind(FromType source, ToType target);
+        void Bind();
     }
 }
