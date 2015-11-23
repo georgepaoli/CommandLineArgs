@@ -31,22 +31,34 @@ namespace CommandLineArgs
                     NameToParam.AddValueToList(name, parameterInformation);
                 }
 
-                ParamsPositionsInArgs.Add(new List<int>());
+                ParamsPredicatesPositionsInArgs.Add(new List<int>());
             }
         }
 
         public List<ArgNameValue> ArgsNameValue = new List<ArgNameValue>();
-        public void ArgsNameValueGetValue()
+        public List<List<int>> ParamsPredicatesPositionsInArgs = new List<List<int>>();
+        public void ArgsNameValueAndParamsPredicates()
         {
-            foreach (var argument in Args)
+            // TODO: feels like this should have nested functions, unfortunatelly they are not supported...
+            for (int i = 0; i < Args.Count; i++)
             {
-                var arg = argument.OriginalValue;
+                var arg = Args[i].OriginalValue;
+                // void "process arg"(var arg = Args[i].OriginalValue)
 
                 if (string.IsNullOrEmpty(arg))
                 {
                     throw new ArgumentNullException("arg");
                 }
 
+                // Would be nice if this code was auto-generated from:
+                // "Is this Arg or Value? Arg starts with '/' or '-'. If this is Arg then we are finished here."();
+                // +--------------------+---------------------------+
+                // | this is interface  | Arg is a string.          |
+                // | for Arg and Value  |---------------------------|
+                // |--------------------| (Arg|string)."starts with"Y--> 
+                // | We want to deter-  | ({ '/', '-'})?            |
+                // | mine instance type ->------------------------>-|
+                // |--------------------|
                 if (arg[0] != '/' && arg[0] != '-')
                 {
                     ArgsNameValue.Add(new ArgNameValue()
@@ -54,40 +66,44 @@ namespace CommandLineArgs
                         Name = null,
                         Value = arg
                     });
-
                     continue;
                 }
 
-                int p = arg.IndexOfAny(new char[] { ':', '=' });
-                if (p == -1)
+                ArgNameValue argInfo; // GetArgInfo()
                 {
-                    ArgsNameValue.Add(new ArgNameValue()
+                    int p = arg.IndexOfAny(new char[] { ':', '=' });
+                    if (p == -1)
                     {
-                        Name = arg.Substring(1),
-                        Value = null
-                    });
-                }
-                else
-                {
-                    int startPos = 1;
-                    if (arg.Length >= 2 && arg[1] == '-')
-                    {
-                        startPos++;
+                        argInfo = new ArgNameValue()
+                        {
+                            Name = arg.Substring(1),
+                            Value = null
+                        };
                     }
-
-                    ArgsNameValue.Add(new ArgNameValue()
+                    else
                     {
-                        Name = arg.Substring(startPos, p - 1),
-                        Value = arg.Substring(p + 1)
-                    });
-                }
-            }
-        }
+                        int startPos = 1;
+                        if (arg.Length >= 2 && arg[1] == '-')
+                        {
+                            startPos++;
+                        }
 
-        public List<List<int>> ParamsPositionsInArgs = new List<List<int>>();
-        public void ParamsPositionsInArgsGetValue()
-        {
-            throw new NotImplementedException();
+                        argInfo = new ArgNameValue()
+                        {
+                            Name = arg.Substring(startPos, p - 1),
+                            Value = arg.Substring(p + 1)
+                        };
+                    }
+                }
+
+                // do i need to have list of arg name values?
+                ArgsNameValue.Add(argInfo);
+
+                // void "TODO: no name"()
+                List<ParameterInformation> listParametersBoundWith;
+                if (NameToParam.TryGetValue(
+                ParamsPredicatesPositionsInArgs
+            }
         }
 
         public void Bind()
@@ -95,8 +111,7 @@ namespace CommandLineArgs
             // note: order of call is exactly the same as doc order
             // note: it can potentially run it with one command in the future
             NameToParamGetValue();
-            ArgsNameValueGetValue();
-            ParamsPositionsInArgsGetValue();
+            ArgsNameValueAndParamsPredicates();
         }
     }
 }
