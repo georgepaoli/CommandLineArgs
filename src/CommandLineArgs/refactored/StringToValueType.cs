@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CommandLineArgs
 {
-    internal static class StringConverters
+    public static class StringToValueType
     {
-        private static object ToBool(string s)
+        public static object ToBool(string s)
         {
             switch (s.ToLowerInvariant())
             {
@@ -25,7 +25,7 @@ namespace CommandLineArgs
             }
         }
 
-        private static object ToEnum(string s, Type outputType)
+        public static object ToEnum(string s, Type outputType)
         {
             if (!outputType.GetTypeInfo().IsEnum)
             {
@@ -44,6 +44,7 @@ namespace CommandLineArgs
             return null;
         }
 
+        // Nullable is a ValueType too
         private static object ToNullable(string s, Type outputType)
         {
             if (!outputType.GetTypeInfo().IsGenericType || outputType.GetGenericTypeDefinition() != typeof(Nullable<>))

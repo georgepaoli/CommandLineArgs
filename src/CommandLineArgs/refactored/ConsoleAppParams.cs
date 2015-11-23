@@ -9,15 +9,10 @@ namespace CommandLineArgs
     public class ConsoleAppParams
     {
         public List<ParameterInformation> Params = new List<ParameterInformation>();
-        public Dictionary<string, List<ParameterInformation>> NameToParam = new Dictionary<string, List<ParameterInformation>>(Constants.Comparer);
-
+        
         public void AddParameter(ParameterInformation parameterInformation)
         {
             Params.Add(parameterInformation);
-            foreach (string name in parameterInformation.Names)
-            {
-                NameToParam.AddValueToList(name, parameterInformation);
-            }
         }
 
         public void AddParametersFromType(Type type)

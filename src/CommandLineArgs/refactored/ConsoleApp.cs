@@ -15,13 +15,14 @@ namespace CommandLineArgs
             T ret = Activator.CreateInstance<T>();
 
             ConsoleApp app = new ConsoleApp();
+            app.Params.AddParametersFromType(typeof(T));
             app.Args.AddArgs(args);
-            app.ReadCommandLineArgsInto(ret);
+            app.ReadValueIntoObject(ret);
 
             return ret;
         }
 
-        public void ReadCommandLineArgsInto(object obj)
+        public void ReadValueIntoObject(object obj)
         {
             Type type = obj.GetType();
 

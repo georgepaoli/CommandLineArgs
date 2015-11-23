@@ -21,12 +21,12 @@ namespace CommandLineArgs
 
         public bool FieldFromArgumentOnPositionSetter(CommandLineArgs commandLineArgs, object retObj, int position)
         {
-            if (commandLineArgs.Args[position].Value == null)
+            if (commandLineArgs.Args[position].OriginalValue == null)
             {
                 return false;
             }
 
-            object resolvedValue = StringConverters.ToType(commandLineArgs.Args[position].Value, Field.FieldType);
+            object resolvedValue = StringToValueType.ToType(commandLineArgs.Args[position].OriginalValue, Field.FieldType);
             if (resolvedValue != null)
             {
                 commandLineArgs.UseArg(position);
@@ -57,7 +57,7 @@ namespace CommandLineArgs
             }
 
             // -name value /name value
-            if (commandLineArgs.Args[argPosition].Value == null
+            if (commandLineArgs.Args[argPosition].OriginalValue == null
                 && argPosition + 1 < commandLineArgs.Args.Length
                 && commandLineArgs.Args[argPosition + 1].Name == null)
             {
@@ -70,7 +70,7 @@ namespace CommandLineArgs
             }
 
             // /flag
-            if (commandLineArgs.Args[argPosition].Value == null)
+            if (commandLineArgs.Args[argPosition].OriginalValue == null)
             {
                 if (Field.FieldType == typeof(bool) || Field.FieldType == typeof(bool?))
                 {
@@ -89,7 +89,7 @@ namespace CommandLineArgs
                 string value = commandLineArgs.PeekPopArg();
                 if (value != null)
                 {
-                    object resolvedValue = StringConverters.ToType(value, Field.FieldType);
+                    object resolvedValue = StringToValueType.ToType(value, Field.FieldType);
                     if (resolvedValue != null)
                     {
                         commandLineArgs.PopArg();

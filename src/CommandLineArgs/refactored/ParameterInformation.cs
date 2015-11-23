@@ -11,6 +11,7 @@ namespace CommandLineArgs
         public FieldInfo Field = null;
         public Type OutputType { get { return Field.FieldType; } }
 
+        // TODO: move (some  of?) these info to binders
         public List<string> Names = new List<string>();
         public bool Required = false;
         public bool CanPopArg = false;

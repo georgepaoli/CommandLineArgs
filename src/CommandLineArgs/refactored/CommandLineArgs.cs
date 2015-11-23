@@ -13,7 +13,12 @@ namespace CommandLineArgs
         {
             foreach (var arg in args)
             {
-                Args.Add(CommandLineArg.FromArg(Args.Count, arg));
+                Args.Add(new CommandLineArg()
+                {
+                    Position = Args.Count,
+                    OriginalValue = arg,
+                    IsUsed = false
+                });
             }
         }
 
@@ -32,9 +37,16 @@ namespace CommandLineArgs
             return ret;
         }
 
-        public CommandLineArg GetNextUnused(CommandLineArg arg)
+        public CommandLineArg GetNextUnused(CommandLineArg arg, bool includeSelf = false)
         {
-            for (int i = arg.Id + 1; i < Args.Count; i++)
+            int i = arg.Position;
+
+            if (!includeSelf)
+            {
+                i++;
+            }
+
+            for (; i < Args.Count; i++)
             {
                 if (!Args[i].IsUsed)
                 {

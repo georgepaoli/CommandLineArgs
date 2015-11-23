@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace CommandLineArgs
 {
-    public class CommandLineArg
+    // TODO: Make it generic?
+    public interface IBinder<FromType, ToType>
     {
-        public int Position;
-        public string OriginalValue;
-        public bool IsUsed;
+        void Bind(FromType source, ToType target);
     }
 }
