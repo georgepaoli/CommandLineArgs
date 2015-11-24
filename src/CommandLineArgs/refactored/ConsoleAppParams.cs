@@ -8,17 +8,26 @@ namespace CommandLineArgs
 {
     public class ConsoleAppParams : List<ParameterInformation>
     {
+        public object Object;
+        public CommandLineArgs Args = new CommandLineArgs();
+
+        public ConsoleAppParams(object target)
+        {
+            Object = target;
+            foreach (var field in Object.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public))
+            {
+                AddParameter(new ParameterInformation(this, field));
+            }
+        }
+
         public void AddParameter(ParameterInformation parameterInformation)
         {
             Add(parameterInformation);
         }
 
-        public void AddParametersFromType(Type type)
+        public void Bind()
         {
-            foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
-            {
-                AddParameter(ParameterInformation.FromField(field));
-            }
+            throw new NotImplementedException();
         }
     }
 }

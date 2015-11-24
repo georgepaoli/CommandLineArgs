@@ -11,12 +11,7 @@ namespace CommandLineArgs
         {
             foreach (var arg in args)
             {
-                Add(new CommandLineArg()
-                {
-                    Position = Count,
-                    OriginalValue = arg,
-                    IsUsed = false
-                });
+                Add(new CommandLineArg(Count, arg));
             }
         }
 

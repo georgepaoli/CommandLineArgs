@@ -8,55 +8,90 @@ namespace CommandLineArgs
 {
     public class ParameterInformation
     {
-        public FieldInfo Field = null;
-        public Type OutputType { get { return Field.FieldType; } }
+        public ConsoleAppParams Parent;
+        public FieldInfo Field;
 
-        // TODO: move (some  of?) these info to binders
         public List<string> Names = new List<string>();
         public bool Required = false;
         public bool CanPopArg = false;
         public bool PopsRemainingArgs = false;
         public bool NoDefaultAlias = false;
+        public int NumberOfArgsBound = 0;
+        public List<int> PositionsInArgs = new List<int>();
 
-        public static ParameterInformation FromField(FieldInfo field)
+        public ParameterInformation(ConsoleAppParams parent, FieldInfo field)
         {
-            var ret = new ParameterInformation() { Field = field };
+            Parent = parent;
+            Field = field;
 
             foreach (var customAttribute in field.GetCustomAttributes())
             {
                 var asAlias = customAttribute as AliasAttribute;
                 if (asAlias != null)
                 {
-                    ret.Names.Add(asAlias.Name);
+                    Names.Add(asAlias.Name);
                 }
 
                 if (customAttribute as RequiredAttribute != null)
                 {
-                    ret.Required = true;
+                    Required = true;
                 }
 
                 if (customAttribute as PopArgAttribute != null)
                 {
-                    ret.CanPopArg = true;
+                    CanPopArg = true;
                 }
 
                 if (customAttribute as PopRemainingArgs != null)
                 {
-                    ret.PopsRemainingArgs = true;
+                    PopsRemainingArgs = true;
                 }
 
                 if (customAttribute as NoDefaultAliasAttribute != null)
                 {
-                    ret.NoDefaultAlias = true;
+                    NoDefaultAlias = true;
                 }
             }
 
-            if (!ret.NoDefaultAlias)
+            if (!NoDefaultAlias)
             {
-                ret.Names.Add(field.Name);
+                Names.Add(field.Name);
+            }
+        }
+
+        public bool TryBindValue(string value)
+        {
+            object resolved = StringToValueType.ToType(value, Field.FieldType);
+            if (resolved == null)
+            {
+                return false;
             }
 
-            return ret;
+            NumberOfArgsBound++;
+
+            
+            {
+                if (Field.FieldType.)
+                {
+                    return false;
+                }
+
+                isList = true;
+            }
+            if (isList)
+            {
+                object list = Field.GetValue(Parent.Object);
+
+            }
+            else
+            {
+                if (NumberOfArgsBound >= 1)
+                {
+                    Field.SetValue(Parent.Object, resolved);
+                }
+            }
+
+            return true;
         }
     }
 }

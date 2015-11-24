@@ -5,28 +5,17 @@ using System.Threading.Tasks;
 
 namespace CommandLineArgs
 {
-    public class ConsoleApp
+    public static class ConsoleApp
     {
-        public ConsoleAppParams Params = new ConsoleAppParams();
-        public CommandLineArgs Args = new CommandLineArgs();
-
         public static T FromCommandLineArgs<T>(string[] args)
         {
             T ret = Activator.CreateInstance<T>();
 
-            ConsoleApp app = new ConsoleApp();
-            app.Params.AddParametersFromType(typeof(T));
-            app.Args.AddArgs(args);
-            app.ReadValueIntoObject(ret);
+            ConsoleAppParams @params = new ConsoleAppParams(ret);
+            @params.Args.AddArgs(args);
+            @params.Bind();
 
             return ret;
-        }
-
-        public void ReadValueIntoObject(object obj)
-        {
-            Type type = obj.GetType();
-
-            throw new NotImplementedException();
         }
     }
 }

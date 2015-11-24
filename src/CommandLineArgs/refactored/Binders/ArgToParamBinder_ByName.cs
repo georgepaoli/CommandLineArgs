@@ -13,105 +13,51 @@ namespace CommandLineArgs
 
     public class ArgToParamBinder
     {
-        [Required][PopArg]
         public CommandLineArgs Args;
-        [Required][PopArg]
         public ConsoleAppParams Params;
-
         public StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
+        public Dictionary<string, ParameterInformation> NameToParam;
+        public List<List<int>> ParamToItsPositionsInArgs = new List<List<int>>();
 
-        public Dictionary<string, List<ParameterInformation>> NameToParam;
-        public void NameToParamGetValue()
+        public ArgToParamBinder(CommandLineArgs args, ConsoleAppParams @params)
         {
-            NameToParam = new Dictionary<string, List<ParameterInformation>>(Comparer);
+            Args = args;
+            Params = @params;
+
+            NameToParam = new Dictionary<string, ParameterInformation>(Comparer);
             foreach (var parameterInformation in Params)
             {
                 foreach (string name in parameterInformation.Names)
                 {
-                    NameToParam.AddValueToList(name, parameterInformation);
+                    NameToParam.Add(name, parameterInformation);
                 }
 
-                ParamsPredicatesPositionsInArgs.Add(new List<int>());
+                ParamToItsPositionsInArgs.Add(new List<int>());
             }
         }
 
-        public List<ArgNameValue> ArgsNameValue = new List<ArgNameValue>();
-        public List<List<int>> ParamsPredicatesPositionsInArgs = new List<List<int>>();
         public void ArgsNameValueAndParamsPredicates()
         {
-            // TODO: feels like this should have nested functions, unfortunatelly they are not supported...
-            for (int i = 0; i < Args.Count; i++)
+            foreach (var arg in Args)
             {
-                var arg = Args[i].OriginalValue;
-                // void "process arg"(var arg = Args[i].OriginalValue)
-
-                if (string.IsNullOrEmpty(arg))
+                if (arg.Name == null)
                 {
-                    throw new ArgumentNullException("arg");
-                }
-
-                // Would be nice if this code was auto-generated from:
-                // "Is this Arg or Value? Arg starts with '/' or '-'. If this is Arg then we are finished here."();
-                // +--------------------+---------------------------+
-                // | this is interface  | Arg is a string.          |
-                // | for Arg and Value  |---------------------------|
-                // |--------------------| (Arg|string)."starts with"Y--> 
-                // | We want to deter-  | ({ '/', '-'})?            |
-                // | mine instance type ->------------------------>-|
-                // |--------------------|
-                if (arg[0] != '/' && arg[0] != '-')
-                {
-                    ArgsNameValue.Add(new ArgNameValue()
-                    {
-                        Name = null,
-                        Value = arg
-                    });
                     continue;
                 }
 
-                ArgNameValue argInfo; // GetArgInfo()
+                ParameterInformation predicate;
+                if (NameToParam.TryGetValue(arg.Name, out predicate))
                 {
-                    int p = arg.IndexOfAny(new char[] { ':', '=' });
-                    if (p == -1)
+                    if (predicate.PopsRemainingArgs)
                     {
-                        argInfo = new ArgNameValue()
+                        if (predicate.Field.FieldType.GetGenericTypeDefinition() != typeof(List<>))
                         {
-                            Name = arg.Substring(1),
-                            Value = null
-                        };
-                    }
-                    else
-                    {
-                        int startPos = 1;
-                        if (arg.Length >= 2 && arg[1] == '-')
-                        {
-                            startPos++;
                         }
-
-                        argInfo = new ArgNameValue()
-                        {
-                            Name = arg.Substring(startPos, p - 1),
-                            Value = arg.Substring(p + 1)
-                        };
                     }
                 }
-
-                // do i need to have list of arg name values?
-                ArgsNameValue.Add(argInfo);
-
-                // void "TODO: no name"()
-                List<ParameterInformation> listParametersBoundWith;
-                if (NameToParam.TryGetValue(
-                ParamsPredicatesPositionsInArgs
             }
         }
 
-        public void Bind()
-        {
-            // note: order of call is exactly the same as doc order
-            // note: it can potentially run it with one command in the future
-            NameToParamGetValue();
-            ArgsNameValueAndParamsPredicates();
-        }
+        public bool TryBindArgWithParam
     }
 }
