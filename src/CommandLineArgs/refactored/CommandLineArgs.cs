@@ -15,19 +15,16 @@ namespace CommandLineArgs
             }
         }
 
-        public List<CommandLineArg> PopRemainingArgs()
+        public IEnumerable<CommandLineArg> PopRemainingArgs()
         {
-            List<CommandLineArg> ret = new List<CommandLineArg>();
             foreach (var arg in this)
             {
                 if (!arg.IsUsed)
                 {
                     arg.IsUsed = true;
-                    ret.Add(arg);
+                    yield return arg;
                 }
             }
-
-            return ret;
         }
 
         public CommandLineArg GetNextUnused(CommandLineArg arg, bool includeSelf = false)

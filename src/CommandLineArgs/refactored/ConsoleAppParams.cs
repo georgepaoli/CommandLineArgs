@@ -11,6 +11,9 @@ namespace CommandLineArgs
         public object Object;
         public CommandLineArgs Args = new CommandLineArgs();
 
+        public StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
+        public Dictionary<string, ParameterInformation> NameToParam;
+
         public ConsoleAppParams(object target)
         {
             Object = target;

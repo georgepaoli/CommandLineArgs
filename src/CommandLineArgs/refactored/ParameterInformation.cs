@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -59,7 +60,33 @@ namespace CommandLineArgs
             }
         }
 
-        public bool TryBindValue(string value)
+        private bool TryAddValueToList(string value)
+        {
+            if (Field.FieldType.GetGenericTypeDefinition() != typeof(List<>))
+            {
+                return false;
+            }
+
+            // This must have exactly one arg - this is List<T>
+            Type underlyingType = Field.FieldType.GetGenericArguments()[0];
+
+            object resolved = StringToValueType.ToType(value, underlyingType);
+            if (resolved == null)
+            {
+                return false;
+            }
+
+            IList list = Field.GetValue(Parent.Object) as IList;
+            if (list == null)
+            {
+                list = (IList)Activator.CreateInstance(Field.FieldType);
+                Field.SetValue(Parent.Object, list);
+            }
+
+            return list.Add(resolved) != -1;
+        }
+
+        private bool TryAddValueToField(string value)
         {
             object resolved = StringToValueType.ToType(value, Field.FieldType);
             if (resolved == null)
@@ -67,31 +94,30 @@ namespace CommandLineArgs
                 return false;
             }
 
+            if (NumberOfArgsBound >= 1)
+            {
+                return false;
+            }
+
             NumberOfArgsBound++;
-
-            
-            {
-                if (Field.FieldType.)
-                {
-                    return false;
-                }
-
-                isList = true;
-            }
-            if (isList)
-            {
-                object list = Field.GetValue(Parent.Object);
-
-            }
-            else
-            {
-                if (NumberOfArgsBound >= 1)
-                {
-                    Field.SetValue(Parent.Object, resolved);
-                }
-            }
+            Field.SetValue(Parent.Object, resolved);
 
             return true;
+        }
+
+        public bool TryBindValue(string value)
+        {
+            if (TryAddValueToField(value))
+            {
+                return true;
+            }
+
+            if (TryAddValueToList(value))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

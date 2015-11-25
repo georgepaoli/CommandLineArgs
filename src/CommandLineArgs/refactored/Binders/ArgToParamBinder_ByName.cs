@@ -15,9 +15,6 @@ namespace CommandLineArgs
     {
         public CommandLineArgs Args;
         public ConsoleAppParams Params;
-        public StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
-        public Dictionary<string, ParameterInformation> NameToParam;
-        public List<List<int>> ParamToItsPositionsInArgs = new List<List<int>>();
 
         public ArgToParamBinder(CommandLineArgs args, ConsoleAppParams @params)
         {
