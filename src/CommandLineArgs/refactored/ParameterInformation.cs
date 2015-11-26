@@ -17,6 +17,7 @@ namespace CommandLineArgs
         public bool CanPopArg = false;
         public bool PopsRemainingArgs = false;
         public bool NoDefaultAlias = false;
+        public bool StopProcessingNamedArgsAfterThis = false;
         public int NumberOfArgsBound = 0;
         public List<int> PositionsInArgs = new List<int>();
 
@@ -43,9 +44,14 @@ namespace CommandLineArgs
                     CanPopArg = true;
                 }
 
-                if (customAttribute as PopRemainingArgs != null)
+                if (customAttribute as PopRemainingArgsAttribute != null)
                 {
                     PopsRemainingArgs = true;
+                }
+
+                if (customAttribute as LastProcessedNamedArgAttribute != null)
+                {
+                    StopProcessingNamedArgsAfterThis = true;
                 }
 
                 if (customAttribute as NoDefaultAliasAttribute != null)
