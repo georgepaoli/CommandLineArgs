@@ -44,6 +44,31 @@ namespace CommandLineArgs
             }
         }
 
+        // TODO: this looks bad
+        public void AddArgs(string[] args)
+        {
+            Args.AddArgs(args);
+        }
+
+        public static ConsoleAppParams FromCommandLineArgs<T>(string[] args)
+        {
+            ConsoleAppParams app;
+            FromCommandLineArgs<T>(args, out app);
+            return app;
+        }
+
+        public static bool FromCommandLineArgs<T>(string[] args, out ConsoleAppParams app)
+        {
+            app = new ConsoleAppParams(Activator.CreateInstance<T>());
+            app.AddArgs(args);
+            if (!app.Bind())
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public void AddParameter(ParameterInformation parameterInformation)
         {
             Add(parameterInformation);

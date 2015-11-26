@@ -19,6 +19,7 @@ namespace CommandLineArgs
         public bool NoDefaultAlias = false;
         public bool StopProcessingNamedArgsAfterThis = false;
         public int NumberOfArgsBound = 0;
+        public string Description = null;
 
         public ParameterInformation(ConsoleAppParams parent, FieldInfo field)
         {
@@ -56,6 +57,12 @@ namespace CommandLineArgs
                 if (customAttribute as NoDefaultAliasAttribute != null)
                 {
                     NoDefaultAlias = true;
+                }
+
+                var asDescription = customAttribute as DescriptionAttribute;
+                if (asDescription != null)
+                {
+                    Description = asDescription.Description;
                 }
             }
 
