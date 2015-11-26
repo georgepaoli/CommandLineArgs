@@ -19,6 +19,16 @@ namespace CommandLineArgs
             return Slice(array, index, array.Length - index);
         }
 
+        /// <summary>
+        /// Tries adding (key, value) to a dictionary.
+        /// returns true if element was added
+        /// </summary>
+        /// <typeparam name="K"></typeparam>
+        /// <typeparam name="V"></typeparam>
+        /// <param name="dictionary"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns>returns true if element was added</returns>
         public static bool TryAdd<K, V>(this Dictionary<K, V> dictionary, K key, V value)
         {
             if (dictionary.ContainsKey(key))

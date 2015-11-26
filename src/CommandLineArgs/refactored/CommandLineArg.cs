@@ -11,8 +11,7 @@ namespace CommandLineArgs
         public int Position;
         public string OriginalValue;
 
-        public bool IsUsed;
-        public string Prefix;
+        //[any special characters]Name[(=|:)[Value]]
         public string Name;
         public string Operator;
         public string Value;
@@ -22,31 +21,25 @@ namespace CommandLineArgs
             Position = position;
             OriginalValue = originalValue;
 
-            IsUsed = false;
-
-            // "Is this Arg or Value? Arg starts with '/' or '-'. If this is Arg then we are finished here."();
-            if (originalValue[0] != '/' && originalValue[0] != '-')
+            int start = 0;
+            // skip special characters
+            for (; start < originalValue.Length; start++)
             {
-                Value = originalValue;
-                return;
+                if (char.IsLetterOrDigit(originalValue[start]))
+                {
+                    break;
+                }
             }
 
-            int p = originalValue.IndexOfAny(new char[] { ':', '=' });
+            // search for name-value separator
+            int p = originalValue.IndexOfAny(new char[] { ':', '=' }, start);
             if (p == -1)
             {
-                Prefix = originalValue[0].ToString();
-                Name = originalValue.Substring(1);
+                Name = originalValue;
             }
             else
             {
-                int startPos = 1;
-                if (originalValue.Length >= 2 && originalValue[1] == '-')
-                {
-                    startPos++;
-                }
-
-                Prefix = originalValue.Substring(0, startPos);
-                Name = originalValue.Substring(startPos, p - 1);
+                Name = originalValue.Substring(0, p - 1);
                 Operator = originalValue.Substring(p, 1);
                 Value = originalValue.Substring(p + 1);
             }

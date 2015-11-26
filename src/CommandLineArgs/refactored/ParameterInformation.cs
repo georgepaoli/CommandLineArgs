@@ -14,12 +14,11 @@ namespace CommandLineArgs
 
         public List<string> Names = new List<string>();
         public bool Required = false;
-        public bool CanPopArg = false;
+        public int ArgsToPop = 0;
         public bool PopsRemainingArgs = false;
         public bool NoDefaultAlias = false;
         public bool StopProcessingNamedArgsAfterThis = false;
         public int NumberOfArgsBound = 0;
-        public List<int> PositionsInArgs = new List<int>();
 
         public ParameterInformation(ConsoleAppParams parent, FieldInfo field)
         {
@@ -31,7 +30,7 @@ namespace CommandLineArgs
                 var asAlias = customAttribute as AliasAttribute;
                 if (asAlias != null)
                 {
-                    Names.Add(asAlias.Name);
+                    Names.AddRange(asAlias.Names);
                 }
 
                 if (customAttribute as RequiredAttribute != null)
@@ -41,7 +40,7 @@ namespace CommandLineArgs
 
                 if (customAttribute as PopArgAttribute != null)
                 {
-                    CanPopArg = true;
+                    ArgsToPop++;
                 }
 
                 if (customAttribute as PopRemainingArgsAttribute != null)
@@ -113,6 +112,11 @@ namespace CommandLineArgs
 
         public bool TryBindValue(string value)
         {
+            if (value == null)
+            {
+                return false;
+            }
+
             if (TryAddValueToField(value))
             {
                 return true;
