@@ -49,7 +49,13 @@ namespace CommandLineArgs
             Add(parameterInformation);
         }
 
-        public void Bind()
+        private static string GetPrintableString(string s)
+        {
+            return s == null ? "null" : $"`{s}`";
+        }
+
+        // TODO: split or leave as is (easy to understand vs easy to fix)
+        public bool Bind()
         {
             bool ignoreNames = false;
             for (int i = 0; i < Args.Count; i++)
@@ -66,13 +72,78 @@ namespace CommandLineArgs
                     ParameterInformation param;
                     if (NameToParam.TryGetValue(arg.Name, out param))
                     {
+                        if (param.StopProcessingNamedArgsAfterThis)
+                        {
+                            ignoreNames = true;
+                        }
+
                         if (param.TryBindValue(arg.Value))
                         {
                             continue;
                         }
+
+                        if (arg.Operator != null)
+                        {
+                            Console.Error.WriteLine($"Unrecognized value: {GetPrintableString(arg.Value)} for {GetPrintableString(arg.Name)}.");
+                            Console.Error.WriteLine($"Expected type: {GetPrintableString(param.Field.FieldType.FullName)}.");
+                            Console.Error.WriteLine($"Note: Type might not be supported or there might be something wrong with this library");
+                            Console.Error.WriteLine($"      File an issue if you think it is wrong");
+                            continue;
+                        }
+
+                        if (++i >= Args.Count)
+                        {
+                            break;
+                        }
+                        if (param.TryBindValue(Args[i].OriginalValue))
+                        {
+                            continue;
+                        }
+                        --i;
+
+                        // bool doesn't require value
+                        if (param.TryBindValue("true"))
+                        {
+                            continue;
+                        }
+
+                        Console.Error.WriteLine($"No value found for `{arg.Name}`. Expected type: {param.Field.FieldType.FullName}.");
+                        Console.Error.WriteLine($"Note: Type might not be supported or there might be something wrong with this library");
+                        Console.Error.WriteLine($"      File an issue if you think it is wrong");
+                        continue;
+                    }
+                } // if (!ignoreNames)
+                else if (ArgPoppers.Count != 0)
+                {
+                    ParameterInformation param = ArgPoppers.Peek();
+                    if (--param.ArgsToPop == 0)
+                    {
+                        ArgPoppers.Dequeue();
+                    }
+
+                    if (param.TryBindValue(arg.OriginalValue))
+                    {
+                        continue;
                     }
                 }
+
+                // we got to the end of the loop, noone consumed (continue = consumed) so unfortunatelly:
+                UnusedArgs.Add(arg.OriginalValue);
             }
+
+            if (UnusedArgs.Count != 0)
+            {
+                foreach (var arg in UnusedArgs)
+                {
+                    Console.Error.WriteLine($"Error: Unused arg: {arg}");
+                }
+
+                return false;
+            }
+
+
+            // TODO: throw on required
+            return true;
         }
     }
 }
