@@ -8,7 +8,6 @@ namespace CommandLineArgs
 {
     public class ConsoleAppParams : List<ParameterInformation>
     {
-        public object Object;
         public CommandLineArgs Args = new CommandLineArgs();
 
         public StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
@@ -16,12 +15,11 @@ namespace CommandLineArgs
         public Queue<ParameterInformation> ArgPoppers = new Queue<ParameterInformation>();
         public List<string> UnusedArgs = new List<string>();
 
-        public ConsoleAppParams(object target)
+        public void AddTarget(object target)
         {
-            Object = target;
-            foreach (var field in Object.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var field in target.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
-                AddParameter(new ParameterInformation(this, field));
+                AddParameter(new ParameterInformation(this, target, field));
             }
 
             foreach (var param in this)
@@ -141,10 +139,18 @@ namespace CommandLineArgs
                 } // if (!ignoreNames)
                 else if (ArgPoppers.Count != 0)
                 {
+                    // TODO: this is fucked up. It should be linked list or something more clever and it should iterate until the end when cannot bind
+                    //       i.e. this won't work:
+                    //       argoftype1 argoftype2 argoftype1 argoftype2
+                    //       when binding to two PopsRemainingArgs
                     ParameterInformation param = ArgPoppers.Peek();
-                    if (--param.ArgsToPop == 0)
+                    if (!param.PopsRemainingArgs)
                     {
-                        ArgPoppers.Dequeue();
+                        --param.ArgsToPop;
+                        if (param.ArgsToPop == 0)
+                        {
+                            ArgPoppers.Dequeue();
+                        }
                     }
 
                     if (param.TryBindValue(arg.OriginalValue))

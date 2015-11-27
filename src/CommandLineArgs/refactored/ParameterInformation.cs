@@ -9,7 +9,9 @@ namespace CommandLineArgs
 {
     public class ParameterInformation
     {
+        // TODO: is parent needed?
         public ConsoleAppParams Parent;
+        public object Target;
         public FieldInfo Field;
 
         public List<string> Names = new List<string>();
@@ -21,9 +23,10 @@ namespace CommandLineArgs
         public int NumberOfArgsBound = 0;
         public string Description = null;
 
-        public ParameterInformation(ConsoleAppParams parent, FieldInfo field)
+        public ParameterInformation(ConsoleAppParams parent, object target, FieldInfo field)
         {
             Parent = parent;
+            Target = target;
             Field = field;
 
             foreach (var customAttribute in field.GetCustomAttributes())
@@ -88,11 +91,11 @@ namespace CommandLineArgs
                 return false;
             }
 
-            IList list = Field.GetValue(Parent.Object) as IList;
+            IList list = Field.GetValue(Target) as IList;
             if (list == null)
             {
                 list = (IList)Activator.CreateInstance(Field.FieldType);
-                Field.SetValue(Parent.Object, list);
+                Field.SetValue(Target, list);
             }
 
             return list.Add(resolved) != -1;
@@ -112,7 +115,7 @@ namespace CommandLineArgs
             }
 
             NumberOfArgsBound++;
-            Field.SetValue(Parent.Object, resolved);
+            Field.SetValue(Target, resolved);
 
             return true;
         }
