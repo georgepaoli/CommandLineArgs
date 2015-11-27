@@ -82,6 +82,7 @@ namespace CommandLineArgs
         // TODO: split or leave as is (easy to understand vs easy to fix)
         public bool Bind()
         {
+            // TODO: add case of combining bools as in: `git clean -fdx` (which is equivalent to `git clean -f -d -x`)
             bool ignoreNames = false;
             for (int i = 0; i < Args.Count; i++)
             {
@@ -156,6 +157,7 @@ namespace CommandLineArgs
                 UnusedArgs.Add(arg.OriginalValue);
             }
 
+            bool ret = true;
             if (UnusedArgs.Count != 0)
             {
                 foreach (var arg in UnusedArgs)
@@ -163,12 +165,23 @@ namespace CommandLineArgs
                     Console.Error.WriteLine($"Error: Unused arg: {arg}");
                 }
 
-                return false;
+                Console.Error.WriteLine($"Error: Unused args are usually caused by typos.");
+                Console.Error.WriteLine($"Error: They are forbidden by default because they may cause significant change in behavior.");
+                Console.Error.WriteLine($"Error: I.e. instead of restarting computer you may shut it down.");
+
+                ret = false;
             }
 
+            foreach (var param in this)
+            {
+                if (param.Required && param.NumberOfArgsBound == 0)
+                {
+                    Console.Error.WriteLine($"Error: Required param `{param.ToString()}` not provided");
+                    ret = false;
+                }
+            }
 
-            // TODO: throw on required
-            return true;
+            return ret;
         }
     }
 }

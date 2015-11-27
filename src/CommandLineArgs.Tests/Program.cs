@@ -9,8 +9,7 @@ namespace CommandLineArgs.Tests
     {
         public static int Main(string[] args)
         {
-            ConsoleApp.StartApp(args);
-            return 0;
+            return ConsoleApp.StartApp(args);
         }
     }
 }

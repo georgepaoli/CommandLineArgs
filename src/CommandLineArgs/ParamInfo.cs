@@ -82,28 +82,6 @@
 //            return false;
 //        }
 
-//        public bool TrySetSingleValueFromConsecutiveArg<T>(ref T obj, CommandLineArgs commandLineArgs)
-//        {
-//            if (CanPopArg)
-//            {
-//                string value = commandLineArgs.PeekPopArg();
-//                if (value != null)
-//                {
-//                    object resolvedValue = StringToValueType.ToType(value, Field.FieldType);
-//                    if (resolvedValue != null)
-//                    {
-//                        commandLineArgs.PopArg();
-//                        Field.SetValue(obj, resolvedValue);
-//                        return true;
-//                    }
-
-//                    // TODO: Should be intelligent about matching args here? (i.e. try to do it by checking type)
-//                }
-//            }
-
-//            return false;
-//        }
-
 //        public void ThrowIfRequiredArg()
 //        {
 //            if (IsRequired)

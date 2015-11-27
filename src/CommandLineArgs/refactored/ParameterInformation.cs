@@ -136,5 +136,11 @@ namespace CommandLineArgs
 
             return false;
         }
+
+        public override string ToString()
+        {
+            // TODO: info about PopArg, what is the best way to display it?
+            return string.Join("|", Names);
+        }
     }
 }

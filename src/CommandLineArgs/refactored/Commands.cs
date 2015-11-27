@@ -12,13 +12,13 @@ namespace CommandLineArgs
         public LinkedList<string> Args;
 
         // outputs
-        public List<
+        //public List<
         public int NumberOfRunCommands = 0;
         public int NumberOfFailedCommands = 0;
 
-        public
+        //public
 
-        public void Create
+        //public void Create
 
         public void StartApp()
         {

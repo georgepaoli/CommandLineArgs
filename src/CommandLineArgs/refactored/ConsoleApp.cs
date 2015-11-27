@@ -106,7 +106,7 @@ namespace CommandLineArgs
                     }
 
                     
-                    app.Args.AddArgs(args);
+                    app.AddArgs(args);
                     app.Bind();
 
                     foreach (var method in methods)
@@ -129,7 +129,7 @@ namespace CommandLineArgs
                 Console.Write("[");
             }
 
-            string.Join("|", param.Names);
+            Console.Write(string.Join("|", param.Names));
             
             Console.Write($"=<{param.Field.FieldType.Name}>");
 
