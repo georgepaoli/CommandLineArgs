@@ -71,7 +71,8 @@ namespace CommandLineArgs
 
             if (!NoDefaultAlias)
             {
-                Names.Add(field.Name);
+                AliasAttribute alias = new AliasAttribute(field.Name);
+                Names.AddRange(alias.Names);
             }
         }
 

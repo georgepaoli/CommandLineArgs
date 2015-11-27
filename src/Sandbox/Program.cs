@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CommandLineArgs;
+using System.Reflection;
 
 namespace Sandbox
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            ConsoleApp.StartApp(args);
+            return ConsoleApp.StartApp(typeof(Program).GetTypeInfo().Assembly, args);
         }
     }
 }

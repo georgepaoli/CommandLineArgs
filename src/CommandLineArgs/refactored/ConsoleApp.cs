@@ -36,12 +36,18 @@ namespace CommandLineArgs
         //{
         //}
 
-        public static int StartApp(string[] args)
+        public static int StartApp(Assembly assembly, string[] args)
         {
             ConsoleApp app = new ConsoleApp();
 
-            foreach (var type in typeof(ConsoleApp).GetTypeInfo().Assembly.DefinedTypes)
+            foreach (var type in assembly.DefinedTypes)
             {
+                if (type.AsType().GetConstructor(Type.EmptyTypes) == null)
+                {
+                    // no parameterless constructor
+                    continue;
+                }
+
                 object target = Activator.CreateInstance(type.AsType());
                 var typeParams = new ConsoleAppParams();
                 typeParams.AddTarget(target);
@@ -91,15 +97,19 @@ namespace CommandLineArgs
                     // TODO: feels like adding arguments here and below wouldn't be that hard
                     try
                     {
+                        Console.WriteLine($"---=== Running `{method.Name}` ===---");
                         method.Invoke(
                             obj: method.IsStatic ? null : target,
                             parameters: null);
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"---=== `{method.Name}` finished successfuly ===---");
+                        Console.ResetColor();
                     }
                     catch (TargetInvocationException wrapped)
                     {
                         app.NumberOfFailedCommands++;
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Error.WriteLine($"!!! Finished running {method.Name} with exception !!!");
+                        Console.Error.WriteLine($"---=== Error when running `{method.Name}` ===---");
                         Console.ResetColor();
                         Console.Error.WriteLine(wrapped.InnerException);
                     }
@@ -109,7 +119,7 @@ namespace CommandLineArgs
                 }
             }
 
-            app.PrintHelp |= !app.AnyCommandRun;
+            app.PrintHelp &= !app.AnyCommandRun;
 
             if (app.PrintHelp)
             {

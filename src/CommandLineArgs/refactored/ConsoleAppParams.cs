@@ -10,8 +10,9 @@ namespace CommandLineArgs
     {
         public CommandLineArgs Args = new CommandLineArgs();
 
-        public StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
-        public Dictionary<string, ParameterInformation> NameToParam = new Dictionary<string, ParameterInformation>();
+        public static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
+        public Dictionary<string, ParameterInformation> NameToParam = new Dictionary<string, ParameterInformation>(Comparer);
+
         public Queue<ParameterInformation> ArgPoppers = new Queue<ParameterInformation>();
         public List<string> UnusedArgs = new List<string>();
 
@@ -171,6 +172,7 @@ namespace CommandLineArgs
                 Console.Error.WriteLine($"Error: I.e. instead of restarting computer you may shut it down.");
 
                 ret = false;
+                throw new Exception("unused arg");
             }
 
             foreach (var param in this)
