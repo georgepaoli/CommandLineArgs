@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace CommandLineArgs
 {
-    // TODO: add description for help
-    [AttributeUsage(AttributeTargets.Field)]
+    // TODO: add description for help - fields should work, rest of it not
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Method | AttributeTargets.Assembly | AttributeTargets.Class)]
     public class DescriptionAttribute : Attribute
     {
         public string Description;
@@ -15,20 +15,6 @@ namespace CommandLineArgs
         {
             Description = description;
         }
-    }
-
-    // TODO: add something like this - see [Alias] comment as it might be consolidated
-    [Flags]
-    public enum AliasType
-    {
-        Value = 0,
-        Any = SlashName | SlashNameColonValue | SlashNameEqualsValue | DashName | DashDashName | DashDashNameEqualsValue,
-        SlashName = 1,
-        SlashNameColonValue = 2,
-        SlashNameEqualsValue = 4,
-        DashName = 8,
-        DashDashName = 16,
-        DashDashNameEqualsValue = 32
     }
 
     // TODO: This should accept following forms:
@@ -137,6 +123,7 @@ namespace CommandLineArgs
     {
     }
 
+    // TODO: allow multiple?
     [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class)]
     public class DefaultCommandAttribute : Attribute
     {
@@ -148,14 +135,12 @@ namespace CommandLineArgs
         }
     }
 
+    // TODO: make sure this works
     [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class)]
-    public class DefaultRunAllCommandsAttribute : Attribute
+    public class DefaultRunAllCommandsAttribute : DefaultCommandAttribute
     {
-        public string Command;
-
-        public DefaultRunAllCommandsAttribute()
+        public DefaultRunAllCommandsAttribute() : base(".*")
         {
-            Command = ".*";
         }
     }
 }

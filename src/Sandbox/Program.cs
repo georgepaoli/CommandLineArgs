@@ -10,15 +10,7 @@ namespace Sandbox
     {
         public static void Main(string[] args)
         {
-            if (args.Length == 0)
-            {
-                args = new string[]
-                    {
-
-                    };
-            }
-
-            ConsoleApp.StartApp<Sandbox>(args);
+            ConsoleApp.StartApp(args);
         }
     }
 }

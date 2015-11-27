@@ -9,7 +9,12 @@ namespace CommandLineArgs
 {
     public class ConsoleApp
     {
-        public ConsoleAppParams Params = new ConsoleAppParams();
+        public List<ConsoleAppParams> Params = new List<ConsoleAppParams>();
+        public List<MethodInfo> Commands = new List<MethodInfo>();
+        public bool PrintHelp = false;
+        public bool AnyCommandRun = false;
+        public int NumberOfRunCommands = 0;
+        public int NumberOfFailedCommands = 0;
 
         public static T FromCommandLineArgs<T>(string[] args)
         {
@@ -33,53 +38,131 @@ namespace CommandLineArgs
 
         public static int StartApp(string[] args)
         {
+            ConsoleApp app = new ConsoleApp();
+
             foreach (var type in typeof(ConsoleApp).GetTypeInfo().Assembly.DefinedTypes)
             {
-                ConsoleApp app = new ConsoleApp();
-                object target = Activator.CreateInstance(type);
-                app.Params.AddTarget(target);
+                object target = Activator.CreateInstance(type.AsType());
+                var typeParams = new ConsoleAppParams();
+                typeParams.AddTarget(target);
+                app.Params.Add(typeParams);
+
+                var typeCommands = type.DeclaredMethods.GetCommands();
+                app.Commands.AddRange(typeCommands);
+                string command = null;
 
                 var defaultCmd = type.GetCustomAttribute(typeof(DefaultCommandAttribute)) as DefaultCommandAttribute;
                 if (defaultCmd != null)
                 {
-                    var methods = type.DeclaredMethods.GetCommands().MatchName(defaultCmd.Command);
-
-                    app.Params.AddArgs(args);
-                    app.Params.Bind();
-
-                    foreach (var method in methods)
+                    command = defaultCmd.Command;
+                }
+                else
+                {
+                    if (args.Length > 0)
                     {
-                        // TODO: feels like adding arguments here and below wouldn't be that hard
+                        command = args[0];
+                        args = args.Slice(1);
+                    }
+                }
+
+                if (command == null)
+                {
+                    app.PrintHelp = true;
+                    continue;
+                }
+
+                typeParams.AddArgs(args);
+                if (!typeParams.Bind())
+                {
+                    app.PrintHelp = true;
+                    continue;
+                }
+
+                var matchedCommands = typeCommands.MatchName(command);
+
+                if (!matchedCommands.Any())
+                {
+                    app.PrintHelp = true;
+                    continue;
+                }
+
+                foreach (var method in matchedCommands)
+                {
+                    // TODO: feels like adding arguments here and below wouldn't be that hard
+                    try
+                    {
                         method.Invoke(
                             obj: method.IsStatic ? null : target,
                             parameters: null);
                     }
+                    catch (TargetInvocationException wrapped)
+                    {
+                        app.NumberOfFailedCommands++;
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Error.WriteLine($"!!! Finished running {method.Name} with exception !!!");
+                        Console.ResetColor();
+                        Console.Error.WriteLine(wrapped.InnerException);
+                    }
+
+                    app.AnyCommandRun = true;
+                    app.NumberOfRunCommands++;
+                }
+            }
+
+            app.PrintHelp |= !app.AnyCommandRun;
+
+            if (app.PrintHelp)
+            {
+                app.DefaultPrintUsage();
+            }
+
+            if (app.AnyCommandRun)
+            {
+                app.PrintReport();
+            }
+
+            return app.AnyCommandRun ? 0 : 1;
+        }
+
+        public void PrintListOfParams()
+        {
+            bool headerPrinted = false;
+            foreach (var typeParams in Params)
+            {
+                foreach (var param in typeParams)
+                {
+                    if (!headerPrinted)
+                    {
+                        Console.WriteLine("Usage:");
+                        headerPrinted = true;
+                    }
+
+                    PrintParamDescription(param);
+                }
+            }
+        }
+
+        public void PrintListOfCommands()
+        {
+            bool headerPrinted = false;
+            foreach (var command in Commands)
+            {
+                if (!headerPrinted)
+                {
+                    Console.WriteLine("Commands:");
+                    headerPrinted = true;
                 }
 
-                //args[0]
-                //if (methods.Any())
-                //{
-                //    // shift args
-                //    args = args.Slice(1);
-                //}
-                //else
-                //{
-                //    // TODO: add customization of help
-                //    DefaultPrintUsage();
-                //    return;
-                //}
+                Console.WriteLine($"    {command.Name}");
             }
         }
 
-        private void DefaultPrintUsage()
+        // TODO: add customization of help
+        public void DefaultPrintUsage()
         {
-            Console.WriteLine("Usage:");
-            foreach (var param in Params)
-            {
-                PrintParamDescription(param);
-            }
+            PrintListOfParams();
+            PrintListOfCommands();
         }
-
 
         private static void PrintParamDescription(ParameterInformation param)
         {
@@ -105,6 +188,23 @@ namespace CommandLineArgs
             }
 
             Console.WriteLine();
+        }
+
+        public void PrintReport()
+        {
+            if (NumberOfRunCommands >= 2)
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"---=== Finished running {NumberOfRunCommands} commands ===---");
+                Console.ResetColor();
+
+                if (NumberOfFailedCommands > 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Error.WriteLine($"---=== {NumberOfFailedCommands} of them failed ===---");
+                    Console.ResetColor();
+                }
+            }
         }
     }
 }

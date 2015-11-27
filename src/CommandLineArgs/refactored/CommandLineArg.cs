@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 namespace CommandLineArgs
 {
     // DO NOT REFACTOR THIS ANYMORE!!! STAYS AS IS UNLESS ABSOLUTELY NECESSARY
+    // THIS WAS ALREADY REFACTORED LIKE MILION TIMES AND KEEP COMING BACK TO SOMETHING SIMILAR TO THIS:
     public class CommandLineArg
     {
         public int Position;

@@ -48,16 +48,10 @@ namespace CommandLineArgs
             Args.AddArgs(args);
         }
 
-        public static ConsoleAppParams FromCommandLineArgs<T>(string[] args)
+        public static bool TryFromCommandLineArgs<T>(string[] args, out ConsoleAppParams app)
         {
-            ConsoleAppParams app;
-            FromCommandLineArgs<T>(args, out app);
-            return app;
-        }
-
-        public static bool FromCommandLineArgs<T>(string[] args, out ConsoleAppParams app)
-        {
-            app = new ConsoleAppParams(Activator.CreateInstance<T>());
+            app = new ConsoleAppParams();
+            app.AddTarget(Activator.CreateInstance<T>());
             app.AddArgs(args);
             if (!app.Bind())
             {
@@ -143,6 +137,7 @@ namespace CommandLineArgs
                     //       i.e. this won't work:
                     //       argoftype1 argoftype2 argoftype1 argoftype2
                     //       when binding to two PopsRemainingArgs
+                    //       let's leave as is for now, not sure if there are other cases
                     ParameterInformation param = ArgPoppers.Peek();
                     if (!param.PopsRemainingArgs)
                     {
