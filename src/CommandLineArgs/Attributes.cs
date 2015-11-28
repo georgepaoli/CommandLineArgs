@@ -124,6 +124,7 @@ namespace CommandLineArgs
     }
 
     // TODO: allow multiple?
+    // TODO: rename
     [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class)]
     public class DefaultCommandAttribute : Attribute
     {
@@ -137,9 +138,10 @@ namespace CommandLineArgs
 
     // TODO: make sure this works
     [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class)]
-    public class DefaultRunAllCommandsAttribute : DefaultCommandAttribute
+    // TODO: : DefaultCommandAttribute should inherit from DefaultCommands - when inherited you can put multiple attributes - should multiple just be enabled?
+    public class DefaultRunAllCommandsAttribute : Attribute
     {
-        public DefaultRunAllCommandsAttribute() : base(".*")
+        public DefaultRunAllCommandsAttribute() //: base(".*")
         {
         }
     }

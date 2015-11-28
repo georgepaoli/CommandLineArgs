@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CommandLineArgs;
+using System;
 
+[DefaultCommand("Start")]
 public class Example1
 {
     public ConsoleColor Color = ConsoleColor.Cyan;

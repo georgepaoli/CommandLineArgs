@@ -26,6 +26,7 @@ namespace Dir
         [Alias("s")]
         public bool SubDirectories = false;
 
+        // TODO: [DefaultCommand]
         public int Start()
         {
             if (NoColor)
