@@ -129,10 +129,14 @@ namespace CommandLineArgs
     public class DefaultCommandAttribute : Attribute
     {
         public string Command;
+        public string[] Args;
 
-        public DefaultCommandAttribute(string command)
+        // TODO: add logic for splitting string from a single long string too
+        // TODO: i.e. [DefaultCommand("asd", "/a /b -asd")]
+        public DefaultCommandAttribute(string command, params string[] args)
         {
             Command = command;
+            Args = args;
         }
     }
 

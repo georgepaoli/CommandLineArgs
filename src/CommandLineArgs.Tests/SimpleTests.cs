@@ -14,6 +14,9 @@ namespace CommandLineArgs.Tests
             Assert.Equal(FooEnum.SomeEnumValue, foo.EnumValue);
         }
 
+        // TODO: maybe something like this:
+        // TODO: [RunWith("/IntValue 123")]
+        // TODO: public void It_works_with_integers(int a, int b)
         public void It_works_with_integers()
         {
             ExampleClass foo = ConsoleApp.FromCommandLineArgs<ExampleClass>(new string[] { "/IntValue", "123" });

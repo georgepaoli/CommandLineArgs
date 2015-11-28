@@ -46,7 +46,10 @@ namespace CommandLineArgs
         // TODO: this looks bad
         public void AddArgs(string[] args)
         {
-            Args.AddArgs(args);
+            if (args != null)
+            {
+                Args.AddArgs(args);
+            }
         }
 
         public static bool TryFromCommandLineArgs<T>(string[] args, out ConsoleAppParams app)

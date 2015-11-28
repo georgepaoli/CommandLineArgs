@@ -10,7 +10,7 @@ namespace CommandLineArgs.Tests
     {
         public static int Main(string[] args)
         {
-            // TODO: Syntax is not intuitive. Fix it ASAP!
+            // TODO: Syntax is not intuitive. Fix it ASAP! (shouldn't be template)
             return ConsoleApp.StartApp<Program>(args);
         }
     }

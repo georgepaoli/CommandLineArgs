@@ -43,7 +43,6 @@ namespace CommandLineArgs
         {
             // Assembly.GetEntryAssembly is missing, GetCallingAssembly is missing too
             Assembly assembly = typeof(T).GetTypeInfo().Assembly;
-
             ConsoleApp app = new ConsoleApp();
 
             foreach (var type in assembly.DefinedTypes)
@@ -54,9 +53,11 @@ namespace CommandLineArgs
                     continue;
                 }
 
+
                 object target = Activator.CreateInstance(type.AsType());
                 var typeParams = new ConsoleAppParams();
                 typeParams.AddTarget(target);
+
                 app.Params.Add(typeParams);
 
                 var typeCommands = type.DeclaredMethods.GetCommands();
@@ -84,6 +85,7 @@ namespace CommandLineArgs
                 }
 
                 typeParams.AddArgs(args);
+                typeParams.AddArgs(defaultCmd.Args);
                 if (!typeParams.Bind())
                 {
                     app.PrintHelp = true;
