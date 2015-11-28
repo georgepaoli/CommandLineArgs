@@ -25,19 +25,25 @@ namespace CommandLineArgs
             appParams.AddArgs(args);
             if (!appParams.Bind())
             {
-                throw new ArgumentException("Could not bind args");
+                // TODO: improve error experience
+                throw new Exception("Could not bind args");
             }
 
             return ret;
         }
 
-        // TODO:
+        // TODO: for single assembly
         //public static int StartApp<T>(string[] args)
         //{
         //}
 
-        public static int StartApp(Assembly assembly, string[] args)
+        // TODO: Currently runs for all assemblies
+        //       it should have an option to choose
+        public static int StartApp<T>(string[] args)
         {
+            // Assembly.GetEntryAssembly is missing, GetCallingAssembly is missing too
+            Assembly assembly = typeof(T).GetTypeInfo().Assembly;
+
             ConsoleApp app = new ConsoleApp();
 
             foreach (var type in assembly.DefinedTypes)
@@ -102,16 +108,16 @@ namespace CommandLineArgs
                             obj: method.IsStatic ? null : target,
                             parameters: null);
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"---=== `{method.Name}` finished successfuly ===---");
+                        Console.WriteLine($"---=== Succeeded `{method.Name}` ===---");
                         Console.ResetColor();
                     }
                     catch (TargetInvocationException wrapped)
                     {
                         app.NumberOfFailedCommands++;
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Error.WriteLine($"---=== Error when running `{method.Name}` ===---");
-                        Console.ResetColor();
                         Console.Error.WriteLine(wrapped.InnerException);
+                        Console.Error.WriteLine($"---=== Failed `{method.Name}` ===---");
+                        Console.ResetColor();
                     }
 
                     app.AnyCommandRun = true;

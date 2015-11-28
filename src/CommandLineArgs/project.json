@@ -16,7 +16,8 @@
             "System.Linq": "4.0.1-beta-23409",
             "System.Text.RegularExpressions": "4.0.11-beta-23409",
             "System.Runtime": "4.0.21-beta-23409",
-            "System.Threading": "4.0.11-beta-23409"
+            "System.Threading": "4.0.11-beta-23409",
+            "System.Runtime.Extensions": "4.0.11-beta-23409"
         }
     }
   }

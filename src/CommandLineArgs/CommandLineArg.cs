@@ -40,7 +40,7 @@ namespace CommandLineArgs
             }
             else
             {
-                Name = originalValue.Substring(0, p - 1);
+                Name = originalValue.Substring(0, p);
                 Operator = originalValue.Substring(p, 1);
                 Value = originalValue.Substring(p + 1);
             }

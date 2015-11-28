@@ -72,6 +72,7 @@ namespace CommandLineArgs
             return s == null ? "null" : $"`{s}`";
         }
 
+        // TODO: should this method not return anything and just throw? right now it is mixed :P
         // TODO: split or leave as is (easy to understand vs easy to fix)
         public bool Bind()
         {
@@ -96,6 +97,7 @@ namespace CommandLineArgs
                             ignoreNames = true;
                         }
 
+                        // TODO: should this take an arg itself?
                         if (param.TryBindValue(arg.Value))
                         {
                             continue;
@@ -103,18 +105,15 @@ namespace CommandLineArgs
 
                         if (arg.Operator != null)
                         {
-                            Console.Error.WriteLine($"Unrecognized value: {GetPrintableString(arg.Value)} for {GetPrintableString(arg.Name)}.");
-                            Console.Error.WriteLine($"Expected type: {GetPrintableString(param.Field.FieldType.FullName)}.");
-                            Console.Error.WriteLine($"Note: Type might not be supported or there might be something wrong with this library");
-                            Console.Error.WriteLine($"      File an issue if you think it is wrong");
+                            Console.Error.WriteLine($"Warning: Unrecognized value: {GetPrintableString(arg.Value)} for {GetPrintableString(arg.Name)}.");
+                            Console.Error.WriteLine($"Warning: Expected type: {GetPrintableString(param.Field.FieldType.FullName)}.");
+                            Console.Error.WriteLine($"Warning: Note: Type might not be supported or there might be something wrong with this library");
+                            Console.Error.WriteLine($"Warning:       File an issue if you think it is wrong");
                             continue;
                         }
 
-                        if (++i >= Args.Count)
-                        {
-                            break;
-                        }
-                        if (param.TryBindValue(Args[i].OriginalValue))
+                        ++i;
+                        if (i < Args.Count && param.TryBindValue(Args[i].OriginalValue))
                         {
                             continue;
                         }
@@ -126,13 +125,14 @@ namespace CommandLineArgs
                             continue;
                         }
 
-                        Console.Error.WriteLine($"No value found for `{arg.Name}`. Expected type: {param.Field.FieldType.FullName}.");
-                        Console.Error.WriteLine($"Note: Type might not be supported or there might be something wrong with this library");
-                        Console.Error.WriteLine($"      File an issue if you think it is wrong");
+                        Console.Error.WriteLine($"Warning: No value found for `{arg.Name}`. Expected type: {param.Field.FieldType.FullName}.");
+                        Console.Error.WriteLine($"Warning: Note: Type might not be supported or there might be something wrong with this library");
+                        Console.Error.WriteLine($"Warning:       File an issue if you think it is wrong");
                         continue;
                     }
                 } // if (!ignoreNames)
-                else if (ArgPoppers.Count != 0)
+
+                if (ArgPoppers.Count != 0)
                 {
                     // TODO: this is fucked up. It should be linked list or something more clever and it should iterate until the end when cannot bind
                     //       i.e. this won't work:
@@ -159,6 +159,52 @@ namespace CommandLineArgs
                 UnusedArgs.Add(arg.OriginalValue);
             }
 
+            // Try to use Unused args
+            // List<string> TryBind(List<string> unusedArgs)
+            {
+                List<string> reducedUnusedArgs = new List<string>();
+                foreach (var arg in UnusedArgs)
+                {
+                    bool deleteArg = true;
+                    if (!arg.StartsWith("-"))
+                    {
+                        deleteArg = false;
+                    }
+                    else
+                    {
+                        // TODO: start from position 1 - do i need to use regular loop or is there a better way to write this? (i.e. optimized slice(1))
+                        for (int i = 1; i < arg.Length; i++)
+                        {
+                            bool letterUsed = false;
+                            foreach (var param in this)
+                            {
+                                if (param.CombiningFlag == arg[i])
+                                {
+                                    // TODO: for now errors ok, should print a warning though
+                                    if (param.TryBindValue("true"))
+                                    {
+                                        letterUsed = true;
+                                    }
+                                }
+                            }
+
+                            if (!letterUsed)
+                            {
+                                deleteArg = false;
+                            }
+                        }
+                    }
+
+                    if (!deleteArg)
+                    {
+                        reducedUnusedArgs.Add(arg);
+                    }
+                }
+
+                // return
+                UnusedArgs = reducedUnusedArgs;
+            }
+
             bool ret = true;
             if (UnusedArgs.Count != 0)
             {
@@ -172,7 +218,6 @@ namespace CommandLineArgs
                 Console.Error.WriteLine($"Error: I.e. instead of restarting computer you may shut it down.");
 
                 ret = false;
-                throw new Exception("unused arg");
             }
 
             foreach (var param in this)

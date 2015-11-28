@@ -10,8 +10,8 @@ namespace CommandLineArgs.Tests
     {
         public static int Main(string[] args)
         {
-            // TODO: Syntax if fucked up. Fix it ASAP!
-            return ConsoleApp.StartApp(typeof(Program).GetTypeInfo().Assembly, args);
+            // TODO: Syntax is fucked up. Fix it ASAP!
+            return ConsoleApp.StartApp<Program>(args);
         }
     }
 }

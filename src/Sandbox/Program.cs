@@ -11,7 +11,7 @@ namespace Sandbox
     {
         public static int Main(string[] args)
         {
-            return ConsoleApp.StartApp(typeof(Program).GetTypeInfo().Assembly, args);
+            return ConsoleApp.StartApp<Program>(args);
         }
     }
 }

@@ -20,6 +20,7 @@ namespace CommandLineArgs
         public bool PopsRemainingArgs = false;
         public bool NoDefaultAlias = false;
         public bool StopProcessingNamedArgsAfterThis = false;
+        public char? CombiningFlag = null;
         public int NumberOfArgsBound = 0;
         public string Description = null;
 
@@ -29,12 +30,20 @@ namespace CommandLineArgs
             Target = target;
             Field = field;
 
+            char? singleLetterAlias = null;
             foreach (var customAttribute in field.GetCustomAttributes())
             {
                 var asAlias = customAttribute as AliasAttribute;
                 if (asAlias != null)
                 {
                     Names.AddRange(asAlias.Names);
+                    foreach (var name in Names)
+                    {
+                        if (name.Length == 1)
+                        {
+                            singleLetterAlias = name[0];
+                        }
+                    }
                 }
 
                 if (customAttribute as RequiredAttribute != null)
@@ -71,8 +80,17 @@ namespace CommandLineArgs
 
             if (!NoDefaultAlias)
             {
-                AliasAttribute alias = new AliasAttribute(field.Name);
-                Names.AddRange(alias.Names);
+                if (field.Name.Length == 1)
+                {
+                    singleLetterAlias = field.Name[0];
+                }
+
+                Names.AddRange((new AliasAttribute(field.Name)).Names);
+            }
+
+            if (Field.FieldType.IsAssignableFrom(typeof(bool)) && singleLetterAlias.HasValue)
+            {
+                CombiningFlag = singleLetterAlias;
             }
         }
 
