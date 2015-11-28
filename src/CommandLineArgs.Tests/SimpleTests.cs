@@ -15,7 +15,7 @@ namespace CommandLineArgs.Tests
         }
 
         // TODO: maybe something like this:
-        // TODO: [RunWith("/IntValue 123")]
+        // TODO: [RunWith("/IntValue 123")] [Start("--IntValue 123")] [Run("/intvalue:3")] [DefaultCmd("/intvalue:3")]
         // TODO: public void It_works_with_integers(int a, int b)
         public void It_works_with_integers()
         {
