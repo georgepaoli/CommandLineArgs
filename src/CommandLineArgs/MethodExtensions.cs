@@ -9,30 +9,48 @@ namespace CommandLineArgs
 {
     internal static class MethodExtensions
     {
-        public static void Invoke(this MethodInfo method, object obj)
+        public static IEnumerable<MethodInfo> GetCommands(this IEnumerable<MethodInfo> methods)
         {
-            method.Invoke(method.IsStatic ? null : obj, null);
-        }
-
-        public static IEnumerable<MethodInfo> GetListFromType(Type t)
-        {
-            foreach (var method in t.GetTypeInfo().DeclaredMethods)
+            foreach (var method in methods)
             {
-                if (method.IsPublic && method.GetParameters().Length == 0 && method.ReturnType == typeof(void))
+                if (!method.IsPublic)
                 {
-                    yield return method;
+                    continue;
                 }
+
+                if (method.ReturnType != typeof(void))
+                {
+                    continue;
+                }
+
+                if (method.GetParameters().Length != 0)
+                {
+                    // TODO: implement this
+                    continue;
+                }
+
+                if (method.GetGenericArguments().Length != 0)
+                {
+                    // TODO: how would that work ???
+                    continue;
+                }
+
+                yield return method;
             }
         }
 
-        public static IEnumerable<MethodInfo> MatchName(this IEnumerable<MethodInfo> functions, string namePattern)
+        public static IEnumerable<MethodInfo> MatchName(this IEnumerable<MethodInfo> methods, string namePattern)
         {
             Regex regex = new Regex(namePattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            foreach (var method in functions)
+            foreach (var method in methods)
             {
                 if (regex.IsMatch(method.Name))
                 {
                     yield return method;
+                }
+                else
+                {
+                    // TODO: heuristics for similar match?
                 }
             }
         }

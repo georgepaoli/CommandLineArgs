@@ -5,63 +5,46 @@ using System.Threading.Tasks;
 
 namespace CommandLineArgs
 {
-    internal class CommandLineArgs
+    public class CommandLineArgs : List<CommandLineArg>
     {
-        public CommandLineArg[] CmdLineArgs;
-        bool[] _usedArgs;
-        int _positionFromLeft = 0;
-
-        public CommandLineArgs(string[] args)
+        public void AddArgs(string[] args)
         {
-            _usedArgs = new bool[args.Length];
-
-            CmdLineArgs = new CommandLineArg[args.Length];
-            for (int i = 0; i < args.Length; i++)
+            foreach (var arg in args)
             {
-                CmdLineArgs[i] = CommandLineArg.FromArg(args[i]);
+                Add(new CommandLineArg(Count, arg));
             }
         }
 
-        public void UseArg(int position)
-        {
-            if (_usedArgs[position])
-            {
-                throw new ArgumentException(string.Format("Multiple fields trying to use arg at position {0}", position));
-            }
+        //public IEnumerable<CommandLineArg> PopRemainingArgs()
+        //{
+        //    foreach (var arg in this)
+        //    {
+        //        if (!arg.IsUsed)
+        //        {
+        //            arg.IsUsed = true;
+        //            yield return arg;
+        //        }
+        //    }
+        //}
 
-            _usedArgs[position] = true;
-        }
+        //public CommandLineArg GetNextUnused(CommandLineArg arg, bool includeSelf = false)
+        //{
+        //    int i = arg.Position;
 
-        public string PeekPopArg()
-        {
-            for (; _positionFromLeft < _usedArgs.Length; _positionFromLeft++)
-            {
-                if (!_usedArgs[_positionFromLeft])
-                {
-                    if (CmdLineArgs[_positionFromLeft].Value != null)
-                    {
-                        return CmdLineArgs[_positionFromLeft].Value;
-                    }
-                }
-            }
+        //    if (!includeSelf)
+        //    {
+        //        i++;
+        //    }
 
-            return null;
-        }
+        //    for (; i < Count; i++)
+        //    {
+        //        if (!this[i].IsUsed)
+        //        {
+        //            return this[i];
+        //        }
+        //    }
 
-        public void PopArg()
-        {
-            UseArg(_positionFromLeft);
-        }
-
-        public bool TryUseArg(int position)
-        {
-            if (_usedArgs[position])
-            {
-                return false;
-            }
-
-            _usedArgs[position] = true;
-            return true;
-        }
+        //    return null;
+        //}
     }
 }

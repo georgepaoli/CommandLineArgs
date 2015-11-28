@@ -8,7 +8,8 @@ public class Program
 {
     public static int Main(string[] args)
     {
-        ConsoleApp.FromCommandLineArgs<Example2>(args).Start();
-        return 0;
+        // TODO: Print class name when printing function names when more than one class
+        // TODO: Help is broken for multiple commands...
+        return ConsoleApp.StartApp<Program>(args);
     }
 }

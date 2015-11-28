@@ -1,6 +1,7 @@
 ﻿using CommandLineArgs;
 using System;
 
+[DefaultCommand("Start")]
 public class Example2
 {
     [Alias("c")]

@@ -5,62 +5,44 @@ using System.Threading.Tasks;
 
 namespace CommandLineArgs
 {
-    internal class CommandLineArg
+    // DO NOT REFACTOR THIS ANYMORE!!! STAYS AS IS UNLESS ABSOLUTELY NECESSARY
+    // THIS WAS ALREADY REFACTORED LIKE MILION TIMES AND KEEP COMING BACK TO SOMETHING SIMILAR TO THIS:
+    public class CommandLineArg
     {
+        public int Position;
+        public string OriginalValue;
+
+        //[any special characters]Name[(=|:)[Value]]
         public string Name;
+        public string Operator;
         public string Value;
 
-        private CommandLineArg() { }
-
-        private static CommandLineArg FromName(string name)
+        public CommandLineArg(int position, string originalValue)
         {
-            return new CommandLineArg()
-            {
-                Name = name,
-                Value = null
-            };
-        }
+            Position = position;
+            OriginalValue = originalValue;
 
-        private static CommandLineArg FromValue(string value)
-        {
-            return new CommandLineArg()
+            int start = 0;
+            // skip special characters
+            for (; start < originalValue.Length; start++)
             {
-                Name = null,
-                Value = value
-            };
-        }
-
-        private static CommandLineArg FromNameValue(string name, string value)
-        {
-            return new CommandLineArg()
-            {
-                Name = name,
-                Value = value
-            };
-        }
-
-        public static CommandLineArg FromArg(string arg)
-        {
-            if (string.IsNullOrEmpty(arg))
-            {
-                throw new ArgumentNullException("arg");
+                if (char.IsLetterOrDigit(originalValue[start]))
+                {
+                    break;
+                }
             }
 
-            if (arg[0] != '/')
-            {
-                return FromValue(arg);
-            };
-
-            int p = arg.IndexOfAny(new char[] { ':', '=' });
+            // search for name-value separator
+            int p = originalValue.IndexOfAny(new char[] { ':', '=' }, start);
             if (p == -1)
             {
-                return FromName(arg.Substring(1));
+                Name = originalValue;
             }
             else
             {
-                return FromNameValue(
-                    name: arg.Substring(1, p - 1),
-                    value: arg.Substring(p + 1));
+                Name = originalValue.Substring(0, p);
+                Operator = originalValue.Substring(p, 1);
+                Value = originalValue.Substring(p + 1);
             }
         }
     }
