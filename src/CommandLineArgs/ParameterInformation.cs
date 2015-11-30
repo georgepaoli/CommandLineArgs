@@ -20,7 +20,7 @@ namespace CommandLineArgs
         public bool PopsRemainingArgs = false;
         public bool NoDefaultAlias = false;
         public bool StopProcessingNamedArgsAfterThis = false;
-        public char? CombiningFlag = null;
+        public char? CombiningSingleLetter = null;
         public int NumberOfArgsBound = 0;
         public string Description = null;
 
@@ -90,7 +90,7 @@ namespace CommandLineArgs
 
             if (Field.FieldType.IsAssignableFrom(typeof(bool)) && singleLetterAlias.HasValue)
             {
-                CombiningFlag = singleLetterAlias;
+                CombiningSingleLetter = singleLetterAlias;
             }
         }
 

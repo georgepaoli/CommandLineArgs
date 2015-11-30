@@ -13,7 +13,6 @@ namespace CommandLineArgs
         public static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
         public Dictionary<string, ParameterInformation> NameToParam = new Dictionary<string, ParameterInformation>(Comparer);
 
-        public Queue<ParameterInformation> ArgPoppers = new Queue<ParameterInformation>();
         public List<string> UnusedArgs = new List<string>();
 
         public void AddTarget(object target)
@@ -27,18 +26,12 @@ namespace CommandLineArgs
             {
                 foreach (var name in param.Names)
                 {
-                    bool success = NameToParam.TryAdd(name, param);
-                    if (!success)
+                    if (!NameToParam.TryAdd(name, param))
                     {
                         Console.Error.WriteLine($"Duplicate name `{name}`.");
                         Console.Error.WriteLine($"First orrucance has type `{NameToParam[name].Field.FieldType.FullName}`.");
                         Console.Error.WriteLine($"Another occurance has type `{param.Field.FieldType.FullName}`.");
                     }
-                }
-
-                if (param.ArgsToPop > 0 || param.PopsRemainingArgs)
-                {
-                    ArgPoppers.Enqueue(param);
                 }
             }
         }
@@ -86,6 +79,7 @@ namespace CommandLineArgs
                 CommandLineArg arg = Args[i];
                 if (!ignoreNames)
                 {
+                    // everything after this separator is treated as 
                     if (arg.OriginalValue == "--")
                     {
                         ignoreNames = true;
@@ -115,6 +109,7 @@ namespace CommandLineArgs
                             continue;
                         }
 
+                        // try use next arg as value
                         ++i;
                         if (i < Args.Count && param.TryBindValue(Args[i].OriginalValue))
                         {
@@ -135,77 +130,66 @@ namespace CommandLineArgs
                     }
                 } // if (!ignoreNames)
 
-                if (ArgPoppers.Count != 0)
+                // TODO: This looks horrible
+                // TODO: optimize
+                // Bind unnamed args
+                foreach (var param in this)
                 {
-                    // TODO: this is fucked up. It should be linked list or something more clever and it should iterate until the end when cannot bind
-                    //       i.e. this won't work:
-                    //       argoftype1 argoftype2 argoftype1 argoftype2
-                    //       when binding to two PopsRemainingArgs
-                    //       let's leave as is for now, not sure if there are other cases
-                    ParameterInformation param = ArgPoppers.Peek();
-                    if (!param.PopsRemainingArgs)
+                    if (param.ArgsToPop == 0 && !param.PopsRemainingArgs)
                     {
-                        --param.ArgsToPop;
-                        if (param.ArgsToPop == 0)
+                        continue;
+                    }
+
+                    Console.WriteLine(param.ToString());
+                    if (param.TryBindValue(arg.OriginalValue))
+                    {
+                        if (param.ArgsToPop > 0)
                         {
-                            ArgPoppers.Dequeue();
+                            param.ArgsToPop--;
+                        }
+
+                        // nested loop, continue outer :(
+                        goto ParseNextArg;
+                    }
+                }
+
+                // TODO: This looks horrible
+                // TODO: optimize
+                // Special logic for cases like: git clean -fdx (equivalent to: git clean -x -d- f)
+                if (arg.OriginalValue.StartsWith("-"))
+                {
+                    bool argUsed = true;
+                    foreach (var letter in arg.OriginalValue.Skip(1))
+                    {
+                        bool letterUsed = false;
+                        foreach (var param in this)
+                        {
+                            if (param.CombiningSingleLetter == letter)
+                            {
+                                // TODO: for now errors ok, should print a warning though
+                                if (param.TryBindValue("true"))
+                                {
+                                    letterUsed = true;
+                                }
+                            }
+                        }
+
+                        if (!letterUsed)
+                        {
+                            argUsed = false;
                         }
                     }
 
-                    if (param.TryBindValue(arg.OriginalValue))
+                    if (argUsed)
                     {
                         continue;
                     }
                 }
 
-                // we got to the end of the loop, noone consumed (continue = consumed) so unfortunatelly:
+                // we got to the end of the loop, no one consumed the arg (continue = consumed) so unfortunatelly:
                 UnusedArgs.Add(arg.OriginalValue);
-            }
 
-            // Try to use Unused args
-            // List<string> TryBind(List<string> unusedArgs)
-            {
-                List<string> reducedUnusedArgs = new List<string>();
-                foreach (var arg in UnusedArgs)
-                {
-                    bool deleteArg = true;
-                    if (!arg.StartsWith("-"))
-                    {
-                        deleteArg = false;
-                    }
-                    else
-                    {
-                        // TODO: start from position 1 - do i need to use regular loop or is there a better way to write this? (i.e. optimized slice(1))
-                        for (int i = 1; i < arg.Length; i++)
-                        {
-                            bool letterUsed = false;
-                            foreach (var param in this)
-                            {
-                                if (param.CombiningFlag == arg[i])
-                                {
-                                    // TODO: for now errors ok, should print a warning though
-                                    if (param.TryBindValue("true"))
-                                    {
-                                        letterUsed = true;
-                                    }
-                                }
-                            }
-
-                            if (!letterUsed)
-                            {
-                                deleteArg = false;
-                            }
-                        }
-                    }
-
-                    if (!deleteArg)
-                    {
-                        reducedUnusedArgs.Add(arg);
-                    }
-                }
-
-                // return
-                UnusedArgs = reducedUnusedArgs;
+                ParseNextArg:;
             }
 
             bool ret = true;

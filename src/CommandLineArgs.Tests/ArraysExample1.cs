@@ -14,23 +14,20 @@ namespace CommandLineArgs.Tests
         [NoDefaultAlias]
         [Alias("number|n")]
         [PopArg]
-        // TODO: Why is this not a `List of Numbers`
+        // TODO: This type should literally be: `List of Numbers`
         public List<int> Numbers;
 
         public void Array_simple_example()
         {
             Assert.Equal(5, Numbers.Count);
-            int sum = 0;
-            int i = 0;
-            // they should contain numbers 1, 2, 3, 4, 5 in any order (theoretically consecutively but that is not promised)
+            int checksum = 0;
+            // order is not guaranteed if mixing different types of passing args
             foreach (var number in Numbers)
             {
-                ++i;
-                sum += number;
-                sum -= i;
+                checksum += number;
             }
 
-            Assert.Equal(0, sum);
+            Assert.Equal(1 + 2 + 3 + 4 + 5, checksum);
         }
     }
 }
