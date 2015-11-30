@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -41,6 +42,7 @@ namespace CommandLineArgs
         //       it should have an option to choose
         public static int StartApp<T>(string[] args)
         {
+            // TODO: logic for printing help is fucked up. See Sandbox example.
             // Assembly.GetEntryAssembly is missing, GetCallingAssembly is missing too
             Assembly assembly = typeof(T).GetTypeInfo().Assembly;
             ConsoleApp app = new ConsoleApp();
@@ -85,7 +87,10 @@ namespace CommandLineArgs
                 }
 
                 typeParams.AddArgs(args);
-                typeParams.AddArgs(defaultCmd.Args);
+                if (defaultCmd != null)
+                {
+                    typeParams.AddArgs(defaultCmd.Args);
+                }
                 if (!typeParams.Bind())
                 {
                     app.PrintHelp = true;
@@ -182,27 +187,44 @@ namespace CommandLineArgs
             PrintListOfCommands();
         }
 
+        private static string GetParamName(ParameterInformation param)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (!param.Required)
+            {
+                sb.Append("[");
+            }
+
+            string paramName = param.ToString();
+            if (string.IsNullOrWhiteSpace(paramName))
+            {
+                sb.Append($"<{param.Field.Name}>");
+            }
+            else
+            {
+                sb.Append(paramName);
+            }
+
+            if (!param.Required)
+            {
+                sb.Append("]");
+            }
+
+            return sb.ToString();
+        }
+
         private static void PrintParamDescription(ParameterInformation param)
         {
-            Console.Write("    ");
-
-            if (!param.Required)
-            {
-                Console.Write("[");
-            }
-
-            Console.Write(param.ToString());
-            
-            Console.Write($"=<{param.Field.FieldType.Name}>");
-
-            if (!param.Required)
-            {
-                Console.Write("]  ");
-            }
+            // TODO: how should this look like?
+            Console.Write($"{GetParamName(param).PadLeft(20)} ");
 
             if (param.Description != null)
             {
                 Console.Write(param.Description);
+            }
+            else
+            {
+                Console.Write($"<Type: {param.Field.FieldType.Name}>");
             }
 
             Console.WriteLine();

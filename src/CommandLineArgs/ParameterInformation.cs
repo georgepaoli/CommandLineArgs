@@ -16,6 +16,7 @@ namespace CommandLineArgs
 
         public List<string> Names = new List<string>();
         public bool Required = false;
+        public bool RequiredSuppressMessages = false;
         public int ArgsToPop = 0;
         public bool PopsRemainingArgs = false;
         public bool NoDefaultAlias = false;
@@ -46,9 +47,12 @@ namespace CommandLineArgs
                     }
                 }
 
-                if (customAttribute as RequiredAttribute != null)
+                var asRequired = customAttribute as RequiredAttribute;
+                if (asRequired != null)
                 {
                     Required = true;
+                    // TODO: too much abstraction, reduce it
+                    RequiredSuppressMessages = asRequired.SupressMessages;
                 }
 
                 if (customAttribute as PopArgAttribute != null)
@@ -161,8 +165,15 @@ namespace CommandLineArgs
 
         public override string ToString()
         {
-            // TODO: info about PopArg, what is the best way to display it?
-            return string.Join("|", Names);
+            string ret = string.Join("|", Names);
+
+            if (string.IsNullOrWhiteSpace(ret))
+            {
+                // TODO: info about PopArg, what is the best way to display it?
+                //       (currently it is when other options not available...)
+                ret = $"<{Field.Name}>";
+            }
+            return ret;
         }
     }
 }

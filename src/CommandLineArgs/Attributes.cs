@@ -83,6 +83,8 @@ namespace CommandLineArgs
     [AttributeUsage(AttributeTargets.Field)]
     public class RequiredAttribute : Attribute
     {
+        // TODO: should this exist?
+        public bool SupressMessages = false;
     }
 
     /// <summary>

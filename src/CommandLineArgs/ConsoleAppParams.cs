@@ -79,7 +79,6 @@ namespace CommandLineArgs
                 CommandLineArg arg = Args[i];
                 if (!ignoreNames)
                 {
-                    // everything after this separator is treated as 
                     if (arg.OriginalValue == "--")
                     {
                         ignoreNames = true;
@@ -140,7 +139,6 @@ namespace CommandLineArgs
                         continue;
                     }
 
-                    Console.WriteLine(param.ToString());
                     if (param.TryBindValue(arg.OriginalValue))
                     {
                         if (param.ArgsToPop > 0)
@@ -211,7 +209,10 @@ namespace CommandLineArgs
             {
                 if (param.Required && param.NumberOfArgsBound == 0)
                 {
-                    Console.Error.WriteLine($"Error: Required param `{param.ToString()}` not provided");
+                    if (!param.RequiredSuppressMessages)
+                    {
+                        Console.Error.WriteLine($"Error: Required param `{param.ToString()}` not provided.");
+                    }
                     ret = false;
                 }
             }
