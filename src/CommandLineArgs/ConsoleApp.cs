@@ -54,7 +54,6 @@ namespace CommandLineArgs
                     continue;
                 }
 
-
                 object target = Activator.CreateInstance(type.AsType());
                 var typeParams = new ConsoleAppParams();
                 typeParams.AddTarget(target);
@@ -66,6 +65,7 @@ namespace CommandLineArgs
                 IEnumerable<MethodInfo> matchedCommands = null;
 
                 string command = null;
+                // Try get command and matched commands from first arg
                 if (args.Length > 0)
                 {
                     command = args[0];
@@ -82,6 +82,7 @@ namespace CommandLineArgs
 
                 typeParams.AddArgs(args);
 
+                // Try get command and matched commands from default command
                 if (command == null)
                 {
                     var defaultCmd = type.GetCustomAttribute(typeof(DefaultCommandAttribute)) as DefaultCommandAttribute;
