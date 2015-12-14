@@ -33,11 +33,6 @@ namespace Sandbox
         [Description("Arguments to pass to the app")]
         public List<string> Arguments;
 
-        // BUGBUGBUG: This is actually a repro
-        //            Repro: Call this program with any args
-        //            Expected: works
-        //            Actual: Broken
-        //            Quick investigation: when command doesn't exist the arg is still being consumed
         // TODO: [HideFromUsage]
         // TODO: [HideAllCommandsFromUsage] [HideAllParametersFromUsage]
         // TODO: [Add fake command for usage (or make [Alias] work with commands...)]

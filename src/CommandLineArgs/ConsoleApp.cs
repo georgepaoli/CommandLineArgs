@@ -42,7 +42,6 @@ namespace CommandLineArgs
         //       it should have an option to choose
         public static int StartApp<T>(string[] args)
         {
-            // TODO: logic for printing help is fucked up. See Sandbox example.
             // Assembly.GetEntryAssembly is missing, GetCallingAssembly is missing too
             Assembly assembly = typeof(T).GetTypeInfo().Assembly;
             ConsoleApp app = new ConsoleApp();
@@ -64,42 +63,41 @@ namespace CommandLineArgs
 
                 var typeCommands = type.DeclaredMethods.GetCommands();
                 app.Commands.AddRange(typeCommands);
-                string command = null;
+                IEnumerable<MethodInfo> matchedCommands = null;
 
-                var defaultCmd = type.GetCustomAttribute(typeof(DefaultCommandAttribute)) as DefaultCommandAttribute;
-                if (defaultCmd != null)
+                string command = null;
+                if (args.Length > 0)
                 {
-                    command = defaultCmd.Command;
-                }
-                else
-                {
-                    if (args.Length > 0)
+                    command = args[0];
+                    matchedCommands = typeCommands.MatchName(command);
+                    if (matchedCommands.Any())
                     {
-                        command = args[0];
                         args = args.Slice(1);
+                    }
+                    else
+                    {
+                        command = null;
                     }
                 }
 
+                typeParams.AddArgs(args);
+
                 if (command == null)
                 {
-                    app.PrintHelp = true;
-                    continue;
+                    var defaultCmd = type.GetCustomAttribute(typeof(DefaultCommandAttribute)) as DefaultCommandAttribute;
+                    if (defaultCmd != null)
+                    {
+                        command = defaultCmd.Command;
+                        typeParams.AddArgs(defaultCmd.Args);
+                        matchedCommands = typeCommands.MatchName(command);
+                        if (!matchedCommands.Any())
+                        {
+                            command = null;
+                        }
+                    }
                 }
 
-                typeParams.AddArgs(args);
-                if (defaultCmd != null)
-                {
-                    typeParams.AddArgs(defaultCmd.Args);
-                }
-                if (!typeParams.Bind())
-                {
-                    app.PrintHelp = true;
-                    continue;
-                }
-
-                var matchedCommands = typeCommands.MatchName(command);
-
-                if (!matchedCommands.Any())
+                if (command == null || !typeParams.Bind())
                 {
                     app.PrintHelp = true;
                     continue;
@@ -165,6 +163,7 @@ namespace CommandLineArgs
             }
         }
 
+        // TODO: most of the print methods look pretty similar...
         public void PrintListOfCommands()
         {
             bool headerPrinted = false;
