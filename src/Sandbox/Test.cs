@@ -15,8 +15,7 @@ namespace Sandbox
         //       I'd rather add all missing cases in the library and force people not to have to use that...
         // TODO: Standard description for only Alias("h") is super verbose.
         //      Code Should have only and only Alias("h") and no [NoDefaultAlias] especially
-        [Alias("-h|--help|--?")]
-        [NoDefaultAlias]
+        [Alias("-h|--?")]
         [Description("Prints this usage text")]
         public bool Help;
 
@@ -43,7 +42,8 @@ namespace Sandbox
                 // TODO: Not sure what would be the best way to represent commands which are visible only by DefaultCommand
                 //       [PrivateCommand]?
                 //       or maybe by just making the method internal :-]
-                throw new NotSupportedException("TODO: fix it");
+                //       perhaps maybe this should not be possible - special behavior is often annoying for users and not intuitive
+                throw new NotSupportedException("If you see this error create an issue.");
             }
 
             Process p = Process.Start(new ProcessStartInfo()
