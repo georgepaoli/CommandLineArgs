@@ -9,8 +9,6 @@ namespace CommandLineArgs
 {
     public class ParameterInformation
     {
-        // TODO: is parent needed?
-        public ConsoleAppParams Parent;
         public object Target;
         public FieldInfo Field;
 
@@ -25,9 +23,8 @@ namespace CommandLineArgs
         public int NumberOfArgsBound = 0;
         public string Description = null;
 
-        public ParameterInformation(ConsoleAppParams parent, object target, FieldInfo field)
+        public ParameterInformation(object target, FieldInfo field)
         {
-            Parent = parent;
             Target = target;
             Field = field;
 

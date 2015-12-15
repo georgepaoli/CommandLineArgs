@@ -19,7 +19,7 @@ namespace CommandLineArgs
         {
             foreach (var field in target.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
-                AddParameter(new ParameterInformation(this, target, field));
+                AddParameter(new ParameterInformation(target, field));
             }
 
             foreach (var param in this)

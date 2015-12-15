@@ -2,7 +2,7 @@
   "profiles": {
     "Sandbox": {
       "commandName": "Sandbox",
-      "commandLineArgs": "notepad test"
+      "commandLineArgs": "--?"
     }
   }
 }
