@@ -9,19 +9,26 @@ namespace CommandLineArgs
 {
     public class ParameterInformation
     {
+        // TODO: following two fields should be in specialized version of this class
         public object Target;
         public FieldInfo Field;
 
+        // Supported parameter metadata
+        // TODO: Should all these metadata be auto generated from custom attributes?
         public List<string> Names = new List<string>();
+        // TODO: How should Required work with popping args?
         public bool Required = false;
         public bool RequiredSuppressMessages = false;
-        public int ArgsToPop = 0;
         public bool PopsRemainingArgs = false;
         public bool NoDefaultAlias = false;
         public bool StopProcessingNamedArgsAfterThis = false;
         public HashSet<char> CombinableSingleLetterAliases = new HashSet<char>();
-        public int NumberOfArgsBound = 0;
         public string Description = null;
+        // TODO: should this value be resetable (and immutable)
+        public int MaxArgsToPop = 0;
+
+        // Output - is this info relevant
+        public int NumberOfArgsBound = 0;
 
         public ParameterInformation(object target, FieldInfo field)
         {
@@ -53,7 +60,7 @@ namespace CommandLineArgs
 
                 if (customAttribute as PopArgAttribute != null)
                 {
-                    ArgsToPop++;
+                    MaxArgsToPop++;
                 }
 
                 if (customAttribute as PopRemainingArgsAttribute != null)

@@ -124,7 +124,7 @@ namespace CommandLineArgs
 
                         Console.Error.WriteLine($"Warning: No value found for `{arg.Name}`. Expected type: {param.Field.FieldType.FullName}.");
                         Console.Error.WriteLine($"Warning: Note: Type might not be supported or there might be something wrong with this library");
-                        Console.Error.WriteLine($"Warning:       File an issue if you think it is wrong");
+                        Console.Error.WriteLine($"Warning:       File an issue if you think this is not working right");
                         continue;
                     }
                 } // if (!ignoreNames)
@@ -134,16 +134,16 @@ namespace CommandLineArgs
                 // Bind unnamed args
                 foreach (var param in this)
                 {
-                    if (param.ArgsToPop == 0 && !param.PopsRemainingArgs)
+                    if (param.MaxArgsToPop == 0 && !param.PopsRemainingArgs)
                     {
                         continue;
                     }
 
                     if (param.TryBindValue(arg.OriginalValue))
                     {
-                        if (param.ArgsToPop > 0)
+                        if (param.MaxArgsToPop > 0)
                         {
-                            param.ArgsToPop--;
+                            param.MaxArgsToPop--;
                         }
 
                         // nested loop, continue outer :(

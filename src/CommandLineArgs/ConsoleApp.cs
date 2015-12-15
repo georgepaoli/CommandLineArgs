@@ -187,6 +187,7 @@ namespace CommandLineArgs
             PrintListOfCommands();
         }
 
+        // TODO: this should be in the param info
         private static string GetParamName(ParameterInformation param)
         {
             StringBuilder sb = new StringBuilder();
