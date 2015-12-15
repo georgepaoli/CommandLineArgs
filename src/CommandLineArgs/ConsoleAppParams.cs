@@ -162,7 +162,7 @@ namespace CommandLineArgs
                         bool letterUsed = false;
                         foreach (var param in this)
                         {
-                            if (param.CombiningSingleLetter == letter)
+                            if (param.CombinableSingleLetterAliases.Contains(letter))
                             {
                                 // TODO: for now errors ok, should print a warning though
                                 if (param.TryBindValue("true"))

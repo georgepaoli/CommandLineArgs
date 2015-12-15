@@ -19,7 +19,7 @@ namespace CommandLineArgs
         public bool PopsRemainingArgs = false;
         public bool NoDefaultAlias = false;
         public bool StopProcessingNamedArgsAfterThis = false;
-        public char? CombiningSingleLetter = null;
+        public HashSet<char> CombinableSingleLetterAliases = new HashSet<char>();
         public int NumberOfArgsBound = 0;
         public string Description = null;
 
@@ -28,7 +28,6 @@ namespace CommandLineArgs
             Target = target;
             Field = field;
 
-            char? singleLetterAlias = null;
             foreach (var customAttribute in field.GetCustomAttributes())
             {
                 var asAlias = customAttribute as AliasAttribute;
@@ -39,7 +38,7 @@ namespace CommandLineArgs
                     {
                         if (name.Length == 1)
                         {
-                            singleLetterAlias = name[0];
+                            CombinableSingleLetterAliases.Add(name[0]);
                         }
                     }
                 }
@@ -83,15 +82,15 @@ namespace CommandLineArgs
             {
                 if (field.Name.Length == 1)
                 {
-                    singleLetterAlias = field.Name[0];
+                    CombinableSingleLetterAliases.Add(field.Name[0]);
                 }
 
                 Names.AddRange((new AliasAttribute(field.Name)).Names);
             }
 
-            if (Field.FieldType.IsAssignableFrom(typeof(bool)) && singleLetterAlias.HasValue)
+            if (!Field.FieldType.IsAssignableFrom(typeof(bool)))
             {
-                CombiningSingleLetter = singleLetterAlias;
+                CombinableSingleLetterAliases.Clear();
             }
         }
 
