@@ -1,0 +1,39 @@
+﻿{
+    "version": "1.0.0-*",
+    "description": "Download Console Application",
+    "authors": [ "krwq" ],
+    "tags": [ "" ],
+    "projectUrl": "",
+    "licenseUrl": "",
+
+    "dependencies": {
+        "CommandLineArgs": "1.0.0-*"
+    },
+
+    "commands": {
+        "Download": "Download"
+    },
+
+    "compilationOptions": {
+        "emitEntryPoint": true
+    },
+
+    "frameworks": {
+        "dnx451": {
+            "dependencies": {
+                "Microsoft.Net.Http": "2.2.22"
+            }
+        },
+        "dnxcore50": {
+            "dependencies": {
+                "Microsoft.CSharp": "4.0.1-beta-23409",
+                "System.Collections": "4.0.11-beta-23409",
+                "System.Console": "4.0.0-beta-23409",
+                "System.Linq": "4.0.1-beta-23409",
+                "System.Threading": "4.0.11-beta-23409",
+                "System.Net.Http": "4.0.1-beta-23409",
+                "System.IO.FileSystem": "4.0.1-beta-23409"
+            }
+        }
+    }
+}
