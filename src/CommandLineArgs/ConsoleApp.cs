@@ -17,7 +17,7 @@ namespace CommandLineArgs
         public int NumberOfRunCommands = 0;
         public int NumberOfFailedCommands = 0;
 
-        public static T FromCommandLineArgs<T>(string[] args)
+        public static T FromCommandLineArgs<T>(params string[] args)
         {
             T ret = Activator.CreateInstance<T>();
 
