@@ -22,6 +22,7 @@ namespace CommandLineArgs
         public bool PopsRemainingArgs = false;
         public bool NoDefaultAlias = false;
         public bool StopProcessingNamedArgsAfterThis = false;
+        public bool IsVerb = false;
         public HashSet<char> CombinableSingleLetterAliases = new HashSet<char>();
         public string Description = null;
         // TODO: should this value be resetable (and immutable)
@@ -63,25 +64,15 @@ namespace CommandLineArgs
                     MaxArgsToPop++;
                 }
 
-                if (customAttribute as PopRemainingArgsAttribute != null)
-                {
-                    PopsRemainingArgs = true;
-                }
+                PopsRemainingArgs |= customAttribute as PopRemainingArgsAttribute != null;
+                StopProcessingNamedArgsAfterThis |= customAttribute as LastProcessedNamedArgAttribute != null;
+                NoDefaultAlias |= customAttribute as NoDefaultAliasAttribute != null;
+                IsVerb |= customAttribute as VerbAttribute != null;
 
-                if (customAttribute as LastProcessedNamedArgAttribute != null)
+                var descriptionAttribute = customAttribute as DescriptionAttribute;
+                if (descriptionAttribute != null)
                 {
-                    StopProcessingNamedArgsAfterThis = true;
-                }
-
-                if (customAttribute as NoDefaultAliasAttribute != null)
-                {
-                    NoDefaultAlias = true;
-                }
-
-                var asDescription = customAttribute as DescriptionAttribute;
-                if (asDescription != null)
-                {
-                    Description = asDescription.Description;
+                    Description = descriptionAttribute.Description;
                 }
             }
 

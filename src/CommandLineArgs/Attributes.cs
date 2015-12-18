@@ -125,6 +125,16 @@ namespace CommandLineArgs
     {
     }
 
+    // TODO: Fix the comment below (not sure if triple slash works with Task List)
+    /// <summary>
+    /// Causes unnamed args to be treated as fake named
+    /// TODO: Fix this comment
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public class VerbAttribute : Attribute
+    {
+    }
+
     // TODO: allow multiple?
     // TODO: rename
     [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class)]

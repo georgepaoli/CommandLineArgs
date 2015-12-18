@@ -16,7 +16,7 @@ namespace CommandLineArgs.Tests
         public bool c;
 
         // TODO: Feels like this should be MultipleSingleCharBoolFlags_Simple_example(bool a, bool b, bool c)
-        // TODO: or maybe this whole file should be a function
+        // TODO: Test cases like: [Command("-abc")][Command("-cba")][Command("-cab")]
         public void MultipleSingleCharBoolFlags_Simple_example()
         {
             Assert.True(a);
