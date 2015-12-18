@@ -13,8 +13,6 @@ namespace CommandLineArgs
         public static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
         public Dictionary<string, ParameterInformation> NameToParam = new Dictionary<string, ParameterInformation>(Comparer);
 
-        public List<string> UnusedArgs = new List<string>();
-
         public void AddTarget(object target)
         {
             foreach (var field in target.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public))
@@ -68,70 +66,112 @@ namespace CommandLineArgs
             return s == null ? "null" : $"`{s}`";
         }
 
-        // TODO: should this method not return anything and just throw? right now it is mixed :P
-        // TODO: split or leave as is (easy to understand vs easy to fix)
-        public bool Bind()
+        private bool BindByNameOrVerb()
         {
-            // TODO: add case of combining bools as in: `git clean -fdx` (which is equivalent to `git clean -f -d -x`)
-            bool ignoreNames = false;
-            for (int i = 0; i < Args.Count; i++)
+            foreach (var arg in Args)
             {
-                CommandLineArg arg = Args[i];
-                if (!ignoreNames)
+                if (arg.OriginalValue == "--")
                 {
-                    if (arg.OriginalValue == "--")
+                    Args.ForceNextWave();
+                    continue;
+                }
+
+                // TODO: add "by verb part"
+
+                ParameterInformation param;
+                if (NameToParam.TryGetValue(arg.Name, out param))
+                {
+                    if (param.StopProcessingNamedArgsAfterThis)
                     {
-                        ignoreNames = true;
+                        Args.ForceNextWave();
+                    }
+
+                    // TODO: should this take an arg itself?
+                    if (param.TryBindValue(arg.Value))
+                    {
                         continue;
                     }
 
-                    ParameterInformation param;
-                    if (NameToParam.TryGetValue(arg.Name, out param))
+                    if (arg.Operator != null)
                     {
-                        if (param.StopProcessingNamedArgsAfterThis)
-                        {
-                            ignoreNames = true;
-                        }
-
-                        // TODO: should this take an arg itself?
-                        if (param.TryBindValue(arg.Value))
-                        {
-                            continue;
-                        }
-
-                        if (arg.Operator != null)
-                        {
-                            Console.Error.WriteLine($"Warning: Unrecognized value: {GetPrintableString(arg.Value)} for {GetPrintableString(arg.Name)}.");
-                            Console.Error.WriteLine($"Warning: Expected type: {GetPrintableString(param.Field.FieldType.FullName)}.");
-                            Console.Error.WriteLine($"Warning: Note: Type might not be supported or there might be something wrong with this library");
-                            Console.Error.WriteLine($"Warning:       File an issue if you think it is wrong");
-                            continue;
-                        }
-
-                        // try use next arg as value
-                        ++i;
-                        if (i < Args.Count && param.TryBindValue(Args[i].OriginalValue))
-                        {
-                            continue;
-                        }
-                        --i;
-
-                        // bool doesn't require value
-                        if (param.TryBindValue("true"))
-                        {
-                            continue;
-                        }
-
-                        Console.Error.WriteLine($"Warning: No value found for `{arg.Name}`. Expected type: {param.Field.FieldType.FullName}.");
+                        Console.Error.WriteLine($"Warning: Unrecognized value: {GetPrintableString(arg.Value)} for {GetPrintableString(arg.Name)}.");
+                        Console.Error.WriteLine($"Warning: Expected type: {GetPrintableString(param.Field.FieldType.FullName)}.");
                         Console.Error.WriteLine($"Warning: Note: Type might not be supported or there might be something wrong with this library");
-                        Console.Error.WriteLine($"Warning:       File an issue if you think this is not working right");
+                        Console.Error.WriteLine($"Warning:       File an issue if you think it is wrong");
                         continue;
                     }
-                } // if (!ignoreNames)
 
-                // TODO: This looks horrible
-                // TODO: optimize
-                // Bind unnamed args
+                    // try use next arg as value
+                    CommandLineArg nextArg = Args.PeekNext();
+                    if (nextArg != null && param.TryBindValue(nextArg.OriginalValue))
+                    {
+                        Args.Skip();
+                        continue;
+                    }
+
+                    // bool doesn't require value
+                    // TODO: There should be a way of assigning value directly or using different converter
+                    if (param.TryBindValue("true"))
+                    {
+                        continue;
+                    }
+                }
+
+                Args.ProcessCurrentArgLater();
+            }
+
+            return true;
+        }
+
+        private bool BindByCombinableCharacter()
+        {
+            // TODO: this looks horrible
+            // Special logic for cases like: git clean -fdx (equivalent to: git clean -x -d- f)
+            foreach (var arg in Args)
+            {
+                if (!arg.OriginalValue.StartsWith("-"))
+                {
+                    Args.ProcessCurrentArgLater();
+                    continue;
+                }
+
+                bool argUsed = true;
+                foreach (var letter in arg.OriginalValue.Skip(1))
+                {
+                    bool letterUsed = false;
+                    foreach (var param in this)
+                    {
+                        if (param.CombinableSingleLetterAliases.Contains(letter))
+                        {
+                            // TODO: for now errors ok, should print a warning though
+                            // TODO: This should be: CanBindValue + BindValue in the second loop if all of them used
+                            if (param.TryBindValue("true"))
+                            {
+                                letterUsed = true;
+                            }
+                        }
+                    }
+
+                    if (!letterUsed)
+                    {
+                        argUsed = false;
+                    }
+                }
+
+                if (!argUsed)
+                {
+                    Args.ProcessCurrentArgLater();
+                    // TODO: return false if at least one letter used?
+                }
+            }
+
+            return true;
+        }
+
+        private bool BindByUnnamedArg()
+        {
+            foreach (var arg in Args)
+            {
                 foreach (var param in this)
                 {
                     if (param.MaxArgsToPop == 0 && !param.PopsRemainingArgs)
@@ -146,54 +186,24 @@ namespace CommandLineArgs
                             param.MaxArgsToPop--;
                         }
 
-                        // nested loop, continue outer :(
-                        goto ParseNextArg;
+                        // not convinced that bool flag will be more readable
+                        goto ConsumeArg;
                     }
                 }
 
-                // TODO: This looks horrible
-                // TODO: optimize
-                // Special logic for cases like: git clean -fdx (equivalent to: git clean -x -d- f)
-                if (arg.OriginalValue.StartsWith("-"))
-                {
-                    bool argUsed = true;
-                    foreach (var letter in arg.OriginalValue.Skip(1))
-                    {
-                        bool letterUsed = false;
-                        foreach (var param in this)
-                        {
-                            if (param.CombinableSingleLetterAliases.Contains(letter))
-                            {
-                                // TODO: for now errors ok, should print a warning though
-                                if (param.TryBindValue("true"))
-                                {
-                                    letterUsed = true;
-                                }
-                            }
-                        }
-
-                        if (!letterUsed)
-                        {
-                            argUsed = false;
-                        }
-                    }
-
-                    if (argUsed)
-                    {
-                        continue;
-                    }
-                }
-
-                // we got to the end of the loop, no one consumed the arg (continue = consumed) so unfortunatelly:
-                UnusedArgs.Add(arg.OriginalValue);
-
-                ParseNextArg:;
+                Args.ProcessCurrentArgLater();
+                ConsumeArg:;
             }
 
+            return true;
+        }
+
+        private bool CheckUnusedArg()
+        {
             bool ret = true;
-            if (UnusedArgs.Count != 0)
+            if (!Args.Empty)
             {
-                foreach (var arg in UnusedArgs)
+                foreach (var arg in Args)
                 {
                     Console.Error.WriteLine($"Error: Unused arg: {arg}");
                 }
@@ -205,6 +215,12 @@ namespace CommandLineArgs
                 ret = false;
             }
 
+            return ret;
+        }
+
+        private bool CheckRequiredParams()
+        {
+            bool ret = true;
             foreach (var param in this)
             {
                 if (param.Required && param.NumberOfArgsBound == 0)
@@ -213,9 +229,37 @@ namespace CommandLineArgs
                     {
                         Console.Error.WriteLine($"Error: Required param `{param.ToString()}` not provided.");
                     }
+
                     ret = false;
                 }
             }
+
+            return ret;
+        }
+
+        // TODO: should this method not return anything and just throw? right now it is mixed :P
+        // TODO: split or leave as is (easy to understand vs easy to fix)
+        public bool Bind()
+        {
+            if (!BindByNameOrVerb())
+            {
+                return false;
+            }
+
+            if (!BindByCombinableCharacter())
+            {
+                return false;
+            }
+
+            if (!BindByUnnamedArg())
+            {
+                return false;
+            }
+
+            // watch out when refactoring
+            // this is not equivalent to: return BindByUnusedArg() && CheckRequiredParams(); (second one might not get executed)
+            bool ret = CheckUnusedArg();
+            ret &= CheckRequiredParams();
 
             return ret;
         }

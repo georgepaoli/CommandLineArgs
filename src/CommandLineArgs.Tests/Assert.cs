@@ -17,6 +17,14 @@ namespace CommandLineArgs.Tests
             }
         }
 
+        public static void False(bool condition)
+        {
+            if (condition)
+            {
+                throw new TestException("Assert.False");
+            }
+        }
+
         public static void Throws<T>(Action action) where T : Exception
         {
             try
@@ -35,7 +43,7 @@ namespace CommandLineArgs.Tests
 
         public static void Equal(object a, object b)
         {
-            if (!a.Equals(b))
+            if (!object.Equals(a, b))
             {
                 throw new TestException("Objects not equal.");
             }

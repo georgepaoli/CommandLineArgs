@@ -9,7 +9,6 @@ namespace CommandLineArgs
     // THIS WAS ALREADY REFACTORED LIKE MILION TIMES AND KEEP COMING BACK TO SOMETHING SIMILAR TO THIS:
     public class CommandLineArg
     {
-        public int Position;
         public string OriginalValue;
 
         //[any special characters]Name[(=|:)[Value]]
@@ -17,9 +16,8 @@ namespace CommandLineArgs
         public string Operator;
         public string Value;
 
-        public CommandLineArg(int position, string originalValue)
+        public CommandLineArg(string originalValue)
         {
-            Position = position;
             OriginalValue = originalValue;
 
             int start = 0;
@@ -44,6 +42,11 @@ namespace CommandLineArgs
                 Operator = originalValue.Substring(p, 1);
                 Value = originalValue.Substring(p + 1);
             }
+        }
+
+        public override string ToString()
+        {
+            return OriginalValue;
         }
     }
 }
