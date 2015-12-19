@@ -94,7 +94,7 @@ namespace CommandLineArgs
 
         private bool TryAddValueToList(string value)
         {
-            if (Field.FieldType.GetGenericTypeDefinition() != typeof(List<>))
+            if (!Field.FieldType.GetTypeInfo().IsGenericType || Field.FieldType.GetGenericTypeDefinition() != typeof(List<>))
             {
                 return false;
             }
@@ -120,13 +120,13 @@ namespace CommandLineArgs
 
         private bool TryAddValueToField(string value)
         {
-            object resolved = StringToValueType.ToType(value, Field.FieldType);
-            if (resolved == null)
+            if (NumberOfArgsBound >= 1)
             {
                 return false;
             }
 
-            if (NumberOfArgsBound >= 1)
+            object resolved = StringToValueType.ToType(value, Field.FieldType);
+            if (resolved == null)
             {
                 return false;
             }

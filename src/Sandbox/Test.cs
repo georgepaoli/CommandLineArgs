@@ -22,7 +22,7 @@ namespace Sandbox
         [NoDefaultAlias]
         // TODO: Messages should be supressed by default for required args when using with commands
         [Required]
-        [PopArg]
+        [Verb]
         [LastProcessedNamedArg]
         [Description("Command to execute")]
         public string Command;

@@ -12,6 +12,7 @@ namespace CommandLineArgs
 
         public static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
         public Dictionary<string, ParameterInformation> NameToParam = new Dictionary<string, ParameterInformation>(Comparer);
+        public LinkedList<ParameterInformation> Verbs = new LinkedList<ParameterInformation>();
 
         public void AddTarget(object target)
         {
@@ -30,6 +31,11 @@ namespace CommandLineArgs
                         Console.Error.WriteLine($"First orrucance has type `{NameToParam[name].Field.FieldType.FullName}`.");
                         Console.Error.WriteLine($"Another occurance has type `{param.Field.FieldType.FullName}`.");
                     }
+                }
+
+                if (param.IsVerb)
+                {
+                    Verbs.AddLast(param);
                 }
             }
         }
@@ -76,8 +82,6 @@ namespace CommandLineArgs
                     continue;
                 }
 
-                // TODO: add "by verb part"
-
                 ParameterInformation param;
                 if (NameToParam.TryGetValue(arg.Name, out param))
                 {
@@ -115,6 +119,26 @@ namespace CommandLineArgs
                     {
                         continue;
                     }
+                }
+
+                LinkedListNode<ParameterInformation> node = Verbs.First;
+                for (; node != null; node = node.Next)
+                {
+                    if (node.Value.TryBindValue(arg.OriginalValue))
+                    {
+                        break;
+                    }
+                }
+
+                if (node != null)
+                {
+                    if (node.Value.StopProcessingNamedArgsAfterThis)
+                    {
+                        Args.ForceNextWave();
+                    }
+
+                    Verbs.Remove(node);
+                    continue;
                 }
 
                 Args.ProcessCurrentArgLater();
@@ -207,10 +231,6 @@ namespace CommandLineArgs
                 {
                     Console.Error.WriteLine($"Error: Unused arg: {arg}");
                 }
-
-                Console.Error.WriteLine($"Error: Unused args are usually caused by typos.");
-                Console.Error.WriteLine($"Error: They are forbidden by default because they may cause significant change in behavior.");
-                Console.Error.WriteLine($"Error: I.e. instead of restarting computer you may shut it down.");
 
                 ret = false;
             }

@@ -12,6 +12,7 @@ namespace CommandLineArgs
     // TODO: although i feel like these stages in here are pretty useful
     // TODO: either way it will get me closer to the cleaner design
     // TODO: seems like identical class can be used for params
+    // TODO: can this be replaced with linked list?
     /// <summary>
     /// Warning: This class is intended to only be used in a foreach loop
     /// </summary>
