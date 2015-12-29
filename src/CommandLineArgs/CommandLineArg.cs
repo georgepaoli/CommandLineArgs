@@ -12,6 +12,7 @@ namespace CommandLineArgs
         public string OriginalValue;
 
         //[any special characters]Name[(=|:)[Value]]
+        // unless you represent this as value and Regex
         public string Name;
         public string Operator;
         public string Value;

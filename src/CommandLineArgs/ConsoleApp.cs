@@ -187,37 +187,10 @@ namespace CommandLineArgs
             PrintListOfCommands();
         }
 
-        // TODO: this should be in the param info
-        private static string GetParamName(ParameterInformation param)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (!param.Required)
-            {
-                sb.Append("[");
-            }
-
-            string paramName = param.ToString();
-            if (string.IsNullOrWhiteSpace(paramName))
-            {
-                sb.Append($"<{param.Field.Name}>");
-            }
-            else
-            {
-                sb.Append(paramName);
-            }
-
-            if (!param.Required)
-            {
-                sb.Append("]");
-            }
-
-            return sb.ToString();
-        }
-
         private static void PrintParamDescription(ParameterInformation param)
         {
             // TODO: how should this look like?
-            Console.Write($"{GetParamName(param).PadLeft(20)} ");
+            Console.Write($"{param.ToString().PadLeft(20)} ");
 
             if (param.Description != null)
             {

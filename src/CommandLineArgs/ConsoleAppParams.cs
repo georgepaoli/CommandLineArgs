@@ -247,7 +247,7 @@ namespace CommandLineArgs
                 {
                     if (!param.RequiredSuppressMessages)
                     {
-                        Console.Error.WriteLine($"Error: Required param `{param.ToString()}` not provided.");
+                        Console.Error.WriteLine($"Error: Required param `{param}` not provided.");
                     }
 
                     ret = false;

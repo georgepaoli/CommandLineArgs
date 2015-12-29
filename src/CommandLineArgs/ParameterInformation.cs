@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CommandLineArgs
@@ -15,7 +16,7 @@ namespace CommandLineArgs
 
         // Supported parameter metadata
         // TODO: Should all these metadata be auto generated from custom attributes?
-        public List<string> Names = new List<string>();
+        public Names Names = new Names();
         // TODO: How should Required work with popping args?
         public bool Required = false;
         public bool RequiredSuppressMessages = false;
@@ -35,6 +36,7 @@ namespace CommandLineArgs
         {
             Target = target;
             Field = field;
+            Names.GetDefaultNames = () => $"<{field.Name}>";
 
             foreach (var customAttribute in field.GetCustomAttributes())
             {
@@ -159,15 +161,20 @@ namespace CommandLineArgs
 
         public override string ToString()
         {
-            string ret = string.Join("|", Names);
-
-            if (string.IsNullOrWhiteSpace(ret))
+            StringBuilder sb = new StringBuilder();
+            if (!Required)
             {
-                // TODO: info about PopArg, what is the best way to display it?
-                //       (currently it is when other options not available...)
-                ret = $"<{Field.Name}>";
+                sb.Append("[");
             }
-            return ret;
+
+            sb.Append(Names.ToString());
+
+            if (!Required)
+            {
+                sb.Append("]");
+            }
+
+            return sb.ToString();
         }
     }
 }
