@@ -71,11 +71,7 @@ namespace CommandLineArgs
                 NoDefaultAlias |= customAttribute as NoDefaultAliasAttribute != null;
                 IsVerb |= customAttribute as VerbAttribute != null;
 
-                var descriptionAttribute = customAttribute as DescriptionAttribute;
-                if (descriptionAttribute != null)
-                {
-                    Description = descriptionAttribute.Description;
-                }
+                var descriptionAttribute = (customAttribute as DescriptionAttribute)?.Description ?? "";
             }
 
             if (!NoDefaultAlias)

@@ -159,7 +159,9 @@ namespace CommandLineArgs
                         headerPrinted = true;
                     }
 
-                    PrintParamDescription(param);
+                    Console.Write($"{param.ToString().PadLeft(20)} ");
+                    Console.Write(param.Names);
+                    Console.WriteLine(param.Description);
                 }
             }
         }
@@ -185,12 +187,6 @@ namespace CommandLineArgs
         {
             PrintListOfParams();
             PrintListOfCommands();
-        }
-
-        private static void PrintParamDescription(ParameterInformation param)
-        {
-            Console.Write($"{param.ToString().PadLeft(20)} ");
-            Console.WriteLine(param.Description ?? param.Names.GetDefaultNames() ?? "");
         }
 
         public void PrintReport()
