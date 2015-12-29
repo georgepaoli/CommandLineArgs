@@ -159,9 +159,7 @@ namespace CommandLineArgs
                         headerPrinted = true;
                     }
 
-                    Console.Write($"{param.ToString().PadLeft(20)} ");
-                    Console.Write(param.Names);
-                    Console.WriteLine(param.Description);
+                    Console.Write($"{param.ToString().PadLeft(20)}");
                 }
             }
         }

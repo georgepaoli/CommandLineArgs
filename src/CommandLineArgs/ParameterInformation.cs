@@ -71,7 +71,7 @@ namespace CommandLineArgs
                 NoDefaultAlias |= customAttribute as NoDefaultAliasAttribute != null;
                 IsVerb |= customAttribute as VerbAttribute != null;
 
-                var descriptionAttribute = (customAttribute as DescriptionAttribute)?.Description ?? "";
+                var descriptionAttribute = (customAttribute as DescriptionAttribute)?.Description;
             }
 
             if (!NoDefaultAlias)
@@ -168,6 +168,12 @@ namespace CommandLineArgs
             if (!Required)
             {
                 sb.Append("]");
+            }
+
+            if (Description != null)
+            {
+                sb.Append(" ");
+                sb.Append(Description);
             }
 
             return sb.ToString();
