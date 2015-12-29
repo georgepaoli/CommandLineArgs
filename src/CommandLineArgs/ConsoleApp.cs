@@ -189,19 +189,8 @@ namespace CommandLineArgs
 
         private static void PrintParamDescription(ParameterInformation param)
         {
-            // TODO: how should this look like?
             Console.Write($"{param.ToString().PadLeft(20)} ");
-
-            if (param.Description != null)
-            {
-                Console.Write(param.Description);
-            }
-            else
-            {
-                Console.Write($"<Type: {param.Field.FieldType.Name}>");
-            }
-
-            Console.WriteLine();
+            Console.WriteLine(param.Description ?? param.Names.GetDefaultNames() ?? "");
         }
 
         public void PrintReport()
