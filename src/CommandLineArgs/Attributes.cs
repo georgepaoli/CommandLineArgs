@@ -5,15 +5,24 @@ using System.Threading.Tasks;
 
 namespace CommandLineArgs
 {
+    // base class
+    public class BoolAttribute : Attribute
+    {
+        public static implicit operator bool (BoolAttribute attribute)
+        {
+            return attribute != null;
+        }
+    }
+
     // TODO: add description for help - fields should work, rest of it not
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Method | AttributeTargets.Assembly | AttributeTargets.Class)]
     public class DescriptionAttribute : Attribute
     {
-        public string Description;
+        public string Text;
 
-        public DescriptionAttribute(string description)
+        public DescriptionAttribute(string text)
         {
-            Description = description;
+            Text = text;
         }
     }
 
@@ -81,15 +90,10 @@ namespace CommandLineArgs
     /// Exception will be thrown when nothing bound.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
-    public class RequiredAttribute : Attribute
+    public class RequiredAttribute : BoolAttribute
     {
         // TODO: should this exist?
         public bool SupressMessages = false;
-
-        public static implicit operator bool(RequiredAttribute attribute)
-        {
-            return attribute != null;
-        }
     }
 
     /// <summary>
@@ -126,7 +130,7 @@ namespace CommandLineArgs
     /// i.e. when you want to execute some other app and pass any remaining args put this attribute
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
-    public class LastProcessedNamedArgAttribute : Attribute
+    public class LastProcessedNamedArgAttribute : BoolAttribute
     {
     }
 
@@ -136,7 +140,7 @@ namespace CommandLineArgs
     /// TODO: Fix this comment
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
-    public class VerbAttribute : Attribute
+    public class VerbAttribute : BoolAttribute
     {
     }
 

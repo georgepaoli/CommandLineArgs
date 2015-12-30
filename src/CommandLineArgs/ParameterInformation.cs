@@ -21,10 +21,10 @@ namespace CommandLineArgs
         public RequiredAttribute Required = null;
         public bool PopsRemainingArgs = false;
         public bool NoDefaultAlias = false;
-        public bool StopProcessingNamedArgsAfterThis = false;
-        public bool IsVerb = false;
+        public LastProcessedNamedArgAttribute StopProcessingNamedArgsAfterThis = null;
+        public VerbAttribute IsVerb = null;
         public HashSet<char> CombinableSingleLetterAliases = new HashSet<char>();
-        public string Description = null;
+        public DescriptionAttribute Description = null;
         // TODO: should this value be resetable (and immutable)
         public int MaxArgsToPop = 0;
 
@@ -60,11 +60,11 @@ namespace CommandLineArgs
                 }
 
                 PopsRemainingArgs |= customAttribute as PopRemainingArgsAttribute != null;
-                StopProcessingNamedArgsAfterThis |= customAttribute as LastProcessedNamedArgAttribute != null;
+                StopProcessingNamedArgsAfterThis = (customAttribute as LastProcessedNamedArgAttribute) ?? StopProcessingNamedArgsAfterThis;
                 NoDefaultAlias |= customAttribute as NoDefaultAliasAttribute != null;
-                IsVerb |= customAttribute as VerbAttribute != null;
+                IsVerb = (customAttribute as VerbAttribute) ?? IsVerb;
 
-                var descriptionAttribute = (customAttribute as DescriptionAttribute)?.Description;
+                Description = (customAttribute as DescriptionAttribute) ?? Description;
             }
 
             if (!NoDefaultAlias)
