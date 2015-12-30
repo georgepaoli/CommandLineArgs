@@ -12,14 +12,32 @@ namespace CommandLineArgs
         {
             return attribute != null;
         }
+
+        public override string ToString()
+        {
+            return (this != null) ? "true" : "false";
+        }
+    }
+
+    public class StringAttribute : Attribute
+    {
+        public string Text;
+
+        public static implicit operator string (StringAttribute attribute)
+        {
+            return attribute?.Text;
+        }
+
+        public override string ToString()
+        {
+            return (string)this;
+        }
     }
 
     // TODO: add description for help - fields should work, rest of it not
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Method | AttributeTargets.Assembly | AttributeTargets.Class)]
-    public class DescriptionAttribute : Attribute
+    public class DescriptionAttribute : StringAttribute
     {
-        public string Text;
-
         public DescriptionAttribute(string text)
         {
             Text = text;
