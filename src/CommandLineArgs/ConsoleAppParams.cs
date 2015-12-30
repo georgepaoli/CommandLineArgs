@@ -245,7 +245,7 @@ namespace CommandLineArgs
             {
                 if (param.Required && param.NumberOfArgsBound == 0)
                 {
-                    if (!param.RequiredSuppressMessages)
+                    if (!param.Required.SupressMessages)
                     {
                         Console.Error.WriteLine($"Error: Required param `{param}` not provided.");
                     }

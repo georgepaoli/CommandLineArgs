@@ -18,8 +18,7 @@ namespace CommandLineArgs
         // TODO: Should all these metadata be auto generated from custom attributes?
         public Names Names = new Names();
         // TODO: How should Required work with popping args?
-        public bool Required = false;
-        public bool RequiredSuppressMessages = false;
+        public RequiredAttribute Required = null;
         public bool PopsRemainingArgs = false;
         public bool NoDefaultAlias = false;
         public bool StopProcessingNamedArgsAfterThis = false;
@@ -53,13 +52,7 @@ namespace CommandLineArgs
                     }
                 }
 
-                var asRequired = customAttribute as RequiredAttribute;
-                if (asRequired != null)
-                {
-                    Required = true;
-                    // TODO: too much abstraction, reduce it
-                    RequiredSuppressMessages = asRequired.SupressMessages;
-                }
+                Required = (customAttribute as RequiredAttribute) ?? Required;
 
                 if (customAttribute as PopArgAttribute != null)
                 {

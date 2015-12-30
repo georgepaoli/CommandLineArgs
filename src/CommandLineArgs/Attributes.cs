@@ -85,6 +85,11 @@ namespace CommandLineArgs
     {
         // TODO: should this exist?
         public bool SupressMessages = false;
+
+        public static implicit operator bool(RequiredAttribute attribute)
+        {
+            return attribute != null;
+        }
     }
 
     /// <summary>
